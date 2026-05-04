@@ -24,7 +24,7 @@ export default function HrPage() {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    fetch('/data/usage.json')
+    fetch('/openclaw-dashboard/data/usage.json')
       .then(r => r.json())
       .then(data => {
         setEmployees(data.employees);

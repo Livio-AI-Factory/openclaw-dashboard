@@ -22,7 +22,7 @@ export default function MePage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/data/usage.json')
+    fetch('/openclaw-dashboard/data/usage.json')
       .then(r => r.json())
       .then(data => {
         setEmployees(data.employees);
