@@ -1,0 +1,29 @@
+name: Update Usage Data
+
+on:
+  schedule:
+    - cron: '0 6 * * 1-6'  # 6 AM UTC = 11:30 AM IST, Mon-Sat
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Generate usage data
+        env:
+          OPENCLAW_AGENTS_DIR: ./agents-data
+        run: |
+          python3 scripts/generate_usage.py
+      
+      - name: Commit if changed
+        run: |
+          git config --local user.email "bot@livio.ai"
+          git config --local user.name "OpenClaw Bot"
+          git diff --quiet public/data/usage.json || git add public/data/usage.json && git commit -m "📊 Update usage data" && git push
