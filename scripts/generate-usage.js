@@ -192,8 +192,21 @@ try {
       const state = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
       scanData.state = state;
     }
+    // Enrich with fixer results
+    const fixerFile = path.join(GUARDIAN_DIR, 'fixer_results.json');
+    if (fs.existsSync(fixerFile)) {
+      scanData.fixerResults = JSON.parse(fs.readFileSync(fixerFile, 'utf-8'));
+    }
+    // Get fixer log (last 50 entries)
+    const fixerLog = path.join(GUARDIAN_DIR, 'fixer_log.jsonl');
+    if (fs.existsSync(fixerLog)) {
+      const logLines = fs.readFileSync(fixerLog, 'utf-8').split('\n').filter(Boolean).slice(-50);
+      scanData.fixerLog = logLines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    } else {
+      scanData.fixerLog = [];
+    }
     fs.writeFileSync(GUARDIAN_OUTPUT, JSON.stringify(scanData, null, 2));
-    console.log(`✅ Generated guardian.json: ${scanData.incidents?.length || 0} incidents`);
+    console.log(`✅ Generated guardian.json: ${scanData.incidents?.length || 0} incidents, ${scanData.fixerLog?.length || 0} fixer entries`);
   }
 
   // Copy incidents log

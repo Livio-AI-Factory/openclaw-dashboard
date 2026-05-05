@@ -1,215 +1,250 @@
 {
-  "scan_time": "2026-05-05T16:38:25.807698+05:30",
+  "scan_time": "2026-05-05T18:17:39.074506+05:30",
   "workspaces_scanned": 39,
   "incidents": [
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "rahul_workspace",
-      "metric": 839.1,
+      "metric": 938.3,
       "threshold": 30,
-      "message": "⏳ Idle session in rahul_workspace: 839 min idle, 12 user msgs vs 89 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.615258+05:30"
+      "message": "⏳ Idle session in rahul_workspace: 938 min idle, 12 user msgs vs 89 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.907151+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "pooja_workspace",
-      "metric": 1242.3,
+      "metric": 1341.5,
       "threshold": 30,
-      "message": "⏳ Idle session in pooja_workspace: 1242 min idle, 13 user msgs vs 54 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.632428+05:30"
+      "message": "⏳ Idle session in pooja_workspace: 1341 min idle, 13 user msgs vs 54 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.918518+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "akash_workspace",
-      "metric": 5412,
+      "metric": 5511.3,
       "threshold": 30,
-      "message": "⏳ Idle session in akash_workspace: 5412 min idle, 5 user msgs vs 34 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.635829+05:30"
+      "message": "⏳ Idle session in akash_workspace: 5511 min idle, 5 user msgs vs 34 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.921701+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "nidhi_workspace",
-      "metric": 5513.5,
+      "metric": 5612.8,
       "threshold": 30,
-      "message": "⏳ Idle session in nidhi_workspace: 5514 min idle, 5 user msgs vs 19 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.651785+05:30"
+      "message": "⏳ Idle session in nidhi_workspace: 5613 min idle, 5 user msgs vs 19 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.928933+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "manju_workspace",
-      "metric": 1462.8,
+      "metric": 1562.1,
       "threshold": 30,
-      "message": "⏳ Idle session in manju_workspace: 1463 min idle, 10 user msgs vs 39 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.665571+05:30"
+      "message": "⏳ Idle session in manju_workspace: 1562 min idle, 10 user msgs vs 39 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.937589+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "nav_workspace",
-      "metric": 5539.2,
+      "metric": 5638.4,
       "threshold": 30,
-      "message": "⏳ Idle session in nav_workspace: 5539 min idle, 3 user msgs vs 33 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.669866+05:30"
+      "message": "⏳ Idle session in nav_workspace: 5638 min idle, 3 user msgs vs 33 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.940548+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "arvind_workspace",
-      "metric": 1160.9,
+      "metric": 1260.1,
       "threshold": 30,
-      "message": "⏳ Idle session in arvind_workspace: 1161 min idle, 2 user msgs vs 52 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.674285+05:30"
+      "message": "⏳ Idle session in arvind_workspace: 1260 min idle, 2 user msgs vs 52 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.943467+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "dipak_workspace",
-      "metric": 1380.3,
+      "metric": 1479.5,
       "threshold": 30,
-      "message": "⏳ Idle session in dipak_workspace: 1380 min idle, 41 user msgs vs 146 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.689117+05:30"
+      "message": "⏳ Idle session in dipak_workspace: 1480 min idle, 41 user msgs vs 146 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.955161+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "raghu_workspace",
-      "metric": 61.1,
+      "metric": 160.4,
       "threshold": 30,
-      "message": "⏳ Idle session in raghu_workspace: 61 min idle, 19 user msgs vs 140 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.703297+05:30"
+      "message": "⏳ Idle session in raghu_workspace: 160 min idle, 19 user msgs vs 140 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.969882+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "rohit_workspace",
-      "metric": 65.4,
+      "metric": 164.6,
       "threshold": 30,
-      "message": "⏳ Idle session in rohit_workspace: 65 min idle, 5 user msgs vs 39 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.707885+05:30"
+      "message": "⏳ Idle session in rohit_workspace: 165 min idle, 5 user msgs vs 39 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.974949+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "varsha_workspace",
-      "metric": 1289.2,
+      "metric": 1388.5,
       "threshold": 30,
-      "message": "⏳ Idle session in varsha_workspace: 1289 min idle, 4 user msgs vs 16 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.710861+05:30"
+      "message": "⏳ Idle session in varsha_workspace: 1388 min idle, 4 user msgs vs 16 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.978048+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "sagarkarpe_workspace",
-      "metric": 1066.1,
+      "metric": 84.4,
       "threshold": 30,
-      "message": "⏳ Idle session in sagarkarpe_workspace: 1066 min idle, 7 user msgs vs 40 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.715970+05:30"
+      "message": "⏳ Idle session in sagarkarpe_workspace: 84 min idle, 10 user msgs vs 74 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.985772+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "kristi_workspace",
-      "metric": 5455,
+      "metric": 5554.2,
       "threshold": 30,
-      "message": "⏳ Idle session in kristi_workspace: 5455 min idle, 14 user msgs vs 51 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.722582+05:30"
+      "message": "⏳ Idle session in kristi_workspace: 5554 min idle, 14 user msgs vs 51 assistant msgs",
+      "timestamp": "2026-05-05T18:17:38.993021+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "apurva_workspace",
-      "metric": 1058.6,
+      "metric": 1157.8,
       "threshold": 30,
-      "message": "⏳ Idle session in apurva_workspace: 1059 min idle, 13 user msgs vs 50 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.729991+05:30"
+      "message": "⏳ Idle session in apurva_workspace: 1158 min idle, 13 user msgs vs 50 assistant msgs",
+      "timestamp": "2026-05-05T18:17:39.002397+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "vignesh_workspace",
-      "metric": 485.2,
+      "metric": 584.4,
       "threshold": 30,
-      "message": "⏳ Idle session in vignesh_workspace: 485 min idle, 10 user msgs vs 49 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.744415+05:30"
-    },
-    {
-      "type": "idle_session",
-      "severity": "warning",
-      "workspace": "pawan_workspace",
-      "metric": 4568.8,
-      "threshold": 30,
-      "message": "⏳ Idle session in pawan_workspace: 4569 min idle, 5 user msgs vs 22 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.747753+05:30"
+      "message": "⏳ Idle session in vignesh_workspace: 584 min idle, 10 user msgs vs 49 assistant msgs",
+      "timestamp": "2026-05-05T18:17:39.019667+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "anupam_workspace",
-      "metric": 1316.1,
+      "metric": 1415.4,
       "threshold": 30,
-      "message": "⏳ Idle session in anupam_workspace: 1316 min idle, 1 user msgs vs 16 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.753081+05:30"
+      "message": "⏳ Idle session in anupam_workspace: 1415 min idle, 1 user msgs vs 16 assistant msgs",
+      "timestamp": "2026-05-05T18:17:39.024988+05:30"
+    },
+    {
+      "type": "token_flood",
+      "severity": "critical",
+      "workspace": "jatin_workspace",
+      "metric": 552477,
+      "threshold": 500000,
+      "message": "🔢 Workspace jatin_workspace used 552,477 tokens in 1 hour (limit: 500,000)",
+      "timestamp": "2026-05-05T18:17:39.030274+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "sagar_workspace",
-      "metric": 1256.6,
+      "metric": 1355.8,
       "threshold": 30,
-      "message": "⏳ Idle session in sagar_workspace: 1257 min idle, 31 user msgs vs 116 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.768593+05:30"
+      "message": "⏳ Idle session in sagar_workspace: 1356 min idle, 31 user msgs vs 116 assistant msgs",
+      "timestamp": "2026-05-05T18:17:39.041384+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "chris_workspace",
-      "metric": 1467.5,
+      "metric": 1566.7,
       "threshold": 30,
-      "message": "⏳ Idle session in chris_workspace: 1467 min idle, 32 user msgs vs 171 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.784807+05:30"
+      "message": "⏳ Idle session in chris_workspace: 1567 min idle, 32 user msgs vs 171 assistant msgs",
+      "timestamp": "2026-05-05T18:17:39.059051+05:30"
     },
     {
       "type": "idle_session",
       "severity": "warning",
       "workspace": "will_workspace",
-      "metric": 9442.8,
+      "metric": 9542,
       "threshold": 30,
-      "message": "⏳ Idle session in will_workspace: 9443 min idle, 14 user msgs vs 47 assistant msgs",
-      "timestamp": "2026-05-05T16:38:25.788912+05:30"
+      "message": "⏳ Idle session in will_workspace: 9542 min idle, 14 user msgs vs 47 assistant msgs",
+      "timestamp": "2026-05-05T18:17:39.063031+05:30"
+    },
+    {
+      "type": "daily_spend",
+      "severity": "warning",
+      "workspace": "ALL",
+      "metric": 26.771149800000043,
+      "threshold": 10,
+      "message": "💳 Daily company spend: $26.77 (limit: $10.00)",
+      "timestamp": "2026-05-05T18:17:39.074394+05:30"
     }
   ],
   "auto_fixes": [],
   "state": {
-    "last_scan": "2026-05-05T16:38:25.807698+05:30",
+    "last_scan": "2026-05-05T18:17:39.074506+05:30",
     "hourly_costs": {},
     "cpu_readings": [
       {
-        "time": 1777979305.7904084,
-        "idle": 34996964,
-        "total": 35644608
+        "time": 1777984631.7739847,
+        "idle": 37095120,
+        "total": 37775651
+      },
+      {
+        "time": 1777984657.7963684,
+        "idle": 37105429,
+        "total": 37786056
+      },
+      {
+        "time": 1777984932.2902038,
+        "idle": 37212365,
+        "total": 37895909
+      },
+      {
+        "time": 1777984958.3967776,
+        "idle": 37222708,
+        "total": 37906351
+      },
+      {
+        "time": 1777985232.8008652,
+        "idle": 37327705,
+        "total": 38016139
+      },
+      {
+        "time": 1777985259.0639389,
+        "idle": 37338014,
+        "total": 38026638
       }
     ],
     "container_restarts": {
       "current_pids": [
         "533",
-        "8161",
-        "70336"
+        "8161"
       ],
       "last_pids": [
         "533",
-        "8161",
-        "70336"
+        "8161"
+      ],
+      "events": [
+        1777979823.1624184
       ]
     },
     "warning_buffer": [],
     "last_digest_date": null,
     "daily_spend": {
-      "2026-05-05": 0.2225937
+      "2026-05-05": 26.771149800000043
     },
     "employee_daily_spend": {
       "2026-05-05": {
@@ -218,13 +253,13 @@
         "pooja_workspace": 0,
         "akash_workspace": 0,
         "nidhin_workspace": 0,
-        "gopika_workspace": 0,
+        "gopika_workspace": 0.08080969999999998,
         "communal_workspace": 0,
-        "omkar_workspace": 0.0323935,
+        "omkar_workspace": 0.2915415,
         "nidhi_workspace": 0,
         "ashwin_workspace": 0,
         "shobha_workspace": 0,
-        "pramod_workspace": 0,
+        "pramod_workspace": 0.16779839999999993,
         "ethan_workspace": 0,
         "manju_workspace": 0,
         "abhishek_workspace": 0,
@@ -235,18 +270,18 @@
         "rohit_workspace": 0,
         "varsha_workspace": 0,
         "kailash_workspace": 0,
-        "sagarkarpe_workspace": 0,
+        "sagarkarpe_workspace": 21.334339449999995,
         "kristi_workspace": 0,
         "prasad_workspace": 0,
         "apurva_workspace": 0,
         "shreyansh_workspace": 0,
         "dhananjay_workspace": 0.05567704999999999,
         "vignesh_workspace": 0,
-        "pawan_workspace": 0,
+        "pawan_workspace": 0.29515920000000007,
         "anupam_workspace": 0,
-        "swapnil_workspace": 0.09692605,
-        "shivakumar_workspace": 0,
-        "jatin_workspace": 0.037597099999999994,
+        "swapnil_workspace": 0.77758785,
+        "shivakumar_workspace": 1.2260626499999998,
+        "jatin_workspace": 2.5421739999999993,
         "sagar_workspace": 0,
         "akshay_workspace": 0,
         "chris_workspace": 0,
@@ -254,5 +289,6 @@
         "neel_workspace": 0
       }
     }
-  }
+  },
+  "fixerLog": []
 }

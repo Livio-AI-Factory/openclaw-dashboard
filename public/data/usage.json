@@ -1,33 +1,13 @@
 {
   "summary": {
     "totalEmployees": 35,
-    "totalWeeklyHours": 33.2,
-    "goalMetCount": 1,
-    "totalTokens": 17417825,
-    "totalCost": 38.82,
-    "lastUpdated": "2026-05-05T11:14:50.390Z"
+    "totalWeeklyHours": 24.2,
+    "goalMetCount": 0,
+    "totalTokens": 14676100,
+    "totalCost": 34.22,
+    "lastUpdated": "2026-05-05T12:47:59.763Z"
   },
   "employees": [
-    {
-      "name": "shivakumar",
-      "agentId": "shivakumar_workspace",
-      "tokensIn": 2135507,
-      "tokensOut": 5842,
-      "totalTokens": 2141349,
-      "weeklyTokensIn": 2135507,
-      "weeklyTokensOut": 5842,
-      "weeklyTokens": 2141349,
-      "estimatedHours": 10.7,
-      "weeklyHours": 10.7,
-      "totalCost": 4.3842,
-      "weeklyCost": 4.3842,
-      "totalRuntimeMs": 0,
-      "weeklyRuntimeMs": 0,
-      "streak": 0,
-      "lastActive": "2026-05-04T16:26:29.190Z",
-      "sessionCount": 1,
-      "rank": 1
-    },
     {
       "name": "Raghu",
       "agentId": "raghu_workspace",
@@ -46,7 +26,7 @@
       "streak": 0,
       "lastActive": "2026-05-05T10:07:17.857Z",
       "sessionCount": 4,
-      "rank": 2
+      "rank": 1
     },
     {
       "name": "Rahul",
@@ -66,7 +46,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T21:09:35.004Z",
       "sessionCount": 3,
-      "rank": 3
+      "rank": 2
     },
     {
       "name": "Dipak",
@@ -86,7 +66,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T12:08:07.709Z",
       "sessionCount": 3,
-      "rank": 4
+      "rank": 3
     },
     {
       "name": "Arvind",
@@ -106,7 +86,47 @@
       "streak": 0,
       "lastActive": "2026-05-04T15:47:30.867Z",
       "sessionCount": 1,
+      "rank": 4
+    },
+    {
+      "name": "Jatin",
+      "agentId": "jatin_workspace",
+      "tokensIn": 245044,
+      "tokensOut": 7772,
+      "totalTokens": 252816,
+      "weeklyTokensIn": 245044,
+      "weeklyTokensOut": 7772,
+      "weeklyTokens": 252816,
+      "estimatedHours": 1.3,
+      "weeklyHours": 1.3,
+      "totalCost": 0.4466,
+      "weeklyCost": 0.4466,
+      "totalRuntimeMs": 0,
+      "weeklyRuntimeMs": 0,
+      "streak": 0,
+      "lastActive": "2026-05-05T12:46:33.490Z",
+      "sessionCount": 1,
       "rank": 5
+    },
+    {
+      "name": "sagarkarpe",
+      "agentId": "sagarkarpe_workspace",
+      "tokensIn": 276725,
+      "tokensOut": 24153,
+      "totalTokens": 300878,
+      "weeklyTokensIn": 223421,
+      "weeklyTokensOut": 13071,
+      "weeklyTokens": 236492,
+      "estimatedHours": 1.5,
+      "weeklyHours": 1.2,
+      "totalCost": 1.538,
+      "weeklyCost": 1.2935,
+      "totalRuntimeMs": 0,
+      "weeklyRuntimeMs": 0,
+      "streak": 0,
+      "lastActive": "2026-05-05T11:23:17.317Z",
+      "sessionCount": 2,
+      "rank": 6
     },
     {
       "name": "rohit",
@@ -126,7 +146,7 @@
       "streak": 0,
       "lastActive": "2026-05-05T10:03:00.811Z",
       "sessionCount": 1,
-      "rank": 6
+      "rank": 7
     },
     {
       "name": "Akshay",
@@ -146,7 +166,7 @@
       "streak": 0,
       "lastActive": "2026-05-05T09:34:01.834Z",
       "sessionCount": 1,
-      "rank": 7
+      "rank": 8
     },
     {
       "name": "Pooja",
@@ -166,7 +186,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T14:26:09.119Z",
       "sessionCount": 2,
-      "rank": 8
+      "rank": 9
     },
     {
       "name": "Dhananjay",
@@ -186,26 +206,6 @@
       "streak": 0,
       "lastActive": "2026-05-05T10:12:08.648Z",
       "sessionCount": 1,
-      "rank": 9
-    },
-    {
-      "name": "sagarkarpe",
-      "agentId": "sagarkarpe_workspace",
-      "tokensIn": 203565,
-      "tokensOut": 14795,
-      "totalTokens": 218360,
-      "weeklyTokensIn": 150261,
-      "weeklyTokensOut": 3713,
-      "weeklyTokens": 153974,
-      "estimatedHours": 1.1,
-      "weeklyHours": 0.8,
-      "totalCost": 0.6935,
-      "weeklyCost": 0.449,
-      "totalRuntimeMs": 0,
-      "weeklyRuntimeMs": 0,
-      "streak": 0,
-      "lastActive": "2026-05-05T11:14:42.630Z",
-      "sessionCount": 2,
       "rank": 10
     },
     {
@@ -249,6 +249,26 @@
       "rank": 12
     },
     {
+      "name": "shivakumar",
+      "agentId": "shivakumar_workspace",
+      "tokensIn": 111715,
+      "tokensOut": 1726,
+      "totalTokens": 113441,
+      "weeklyTokensIn": 111715,
+      "weeklyTokensOut": 1726,
+      "weeklyTokens": 113441,
+      "estimatedHours": 0.6,
+      "weeklyHours": 0.6,
+      "totalCost": 0.1813,
+      "weeklyCost": 0.1813,
+      "totalRuntimeMs": 0,
+      "weeklyRuntimeMs": 0,
+      "streak": 0,
+      "lastActive": "2026-05-05T12:40:25.325Z",
+      "sessionCount": 1,
+      "rank": 13
+    },
+    {
       "name": "sagar",
       "agentId": "sagar_workspace",
       "tokensIn": 1203066,
@@ -266,7 +286,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T14:11:49.121Z",
       "sessionCount": 3,
-      "rank": 13
+      "rank": 14
     },
     {
       "name": "shreyansh",
@@ -286,7 +306,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T16:36:20.882Z",
       "sessionCount": 1,
-      "rank": 14
+      "rank": 15
     },
     {
       "name": "Chris",
@@ -306,26 +326,6 @@
       "streak": 0,
       "lastActive": "2026-05-04T10:40:57.837Z",
       "sessionCount": 6,
-      "rank": 15
-    },
-    {
-      "name": "Gopika",
-      "agentId": "gopika_workspace",
-      "tokensIn": 765115,
-      "tokensOut": 34267,
-      "totalTokens": 799382,
-      "weeklyTokensIn": 78660,
-      "weeklyTokensOut": 718,
-      "weeklyTokens": 79378,
-      "estimatedHours": 4,
-      "weeklyHours": 0.4,
-      "totalCost": 0.6894,
-      "weeklyCost": 0.0777,
-      "totalRuntimeMs": 0,
-      "weeklyRuntimeMs": 0,
-      "streak": 0,
-      "lastActive": "2026-05-04T10:01:25.661Z",
-      "sessionCount": 1,
       "rank": 16
     },
     {
@@ -371,20 +371,20 @@
     {
       "name": "Pramod",
       "agentId": "pramod_workspace",
-      "tokensIn": 185466,
-      "tokensOut": 7293,
-      "totalTokens": 192759,
-      "weeklyTokensIn": 49735,
-      "weeklyTokensOut": 1334,
-      "weeklyTokens": 51069,
+      "tokensIn": 200257,
+      "tokensOut": 7802,
+      "totalTokens": 208059,
+      "weeklyTokensIn": 64526,
+      "weeklyTokensOut": 1843,
+      "weeklyTokens": 66369,
       "estimatedHours": 1,
       "weeklyHours": 0.3,
-      "totalCost": 0.1578,
-      "weeklyCost": 0.0851,
+      "totalCost": 0.1788,
+      "weeklyCost": 0.1061,
       "totalRuntimeMs": 0,
       "weeklyRuntimeMs": 0,
       "streak": 0,
-      "lastActive": "2026-05-04T14:28:52.381Z",
+      "lastActive": "2026-05-05T12:28:42.821Z",
       "sessionCount": 1,
       "rank": 19
     },
@@ -409,26 +409,6 @@
       "rank": 20
     },
     {
-      "name": "Jatin",
-      "agentId": "jatin_workspace",
-      "tokensIn": 51449,
-      "tokensOut": 826,
-      "totalTokens": 52275,
-      "weeklyTokensIn": 51449,
-      "weeklyTokensOut": 826,
-      "weeklyTokens": 52275,
-      "estimatedHours": 0.3,
-      "weeklyHours": 0.3,
-      "totalCost": 0.0736,
-      "weeklyCost": 0.0736,
-      "totalRuntimeMs": 0,
-      "weeklyRuntimeMs": 0,
-      "streak": 0,
-      "lastActive": "2026-05-05T10:44:30.396Z",
-      "sessionCount": 1,
-      "rank": 21
-    },
-    {
       "name": "Ashwin",
       "agentId": "ashwin_workspace",
       "tokensIn": 509598,
@@ -446,7 +426,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T11:06:00.873Z",
       "sessionCount": 1,
-      "rank": 22
+      "rank": 21
     },
     {
       "name": "varsha",
@@ -466,7 +446,7 @@
       "streak": 0,
       "lastActive": "2026-05-04T13:39:11.013Z",
       "sessionCount": 2,
-      "rank": 23
+      "rank": 22
     },
     {
       "name": "Omkar",
@@ -486,6 +466,26 @@
       "streak": 0,
       "lastActive": "2026-05-05T10:35:42.267Z",
       "sessionCount": 1,
+      "rank": 23
+    },
+    {
+      "name": "Pawan",
+      "agentId": "pawan_workspace",
+      "tokensIn": 27771,
+      "tokensOut": 552,
+      "totalTokens": 28323,
+      "weeklyTokensIn": 12066,
+      "weeklyTokensOut": 24,
+      "weeklyTokens": 12090,
+      "estimatedHours": 0.1,
+      "weeklyHours": 0.1,
+      "totalCost": 0.0675,
+      "weeklyCost": 0.0123,
+      "totalRuntimeMs": 0,
+      "weeklyRuntimeMs": 0,
+      "streak": 0,
+      "lastActive": "2026-05-05T11:40:22.390Z",
+      "sessionCount": 2,
       "rank": 24
     },
     {
@@ -589,26 +589,6 @@
       "rank": 29
     },
     {
-      "name": "Pawan",
-      "agentId": "pawan_workspace",
-      "tokensIn": 238905,
-      "tokensOut": 7643,
-      "totalTokens": 246548,
-      "weeklyTokensIn": 0,
-      "weeklyTokensOut": 0,
-      "weeklyTokens": 0,
-      "estimatedHours": 1.2,
-      "weeklyHours": 0,
-      "totalCost": 1.0495,
-      "weeklyCost": 0,
-      "totalRuntimeMs": 0,
-      "weeklyRuntimeMs": 0,
-      "streak": 0,
-      "lastActive": "2026-05-02T06:59:36.849Z",
-      "sessionCount": 2,
-      "rank": 30
-    },
-    {
       "name": "Prasad",
       "agentId": "prasad_workspace",
       "tokensIn": 151854,
@@ -626,7 +606,7 @@
       "streak": 0,
       "lastActive": "2026-05-01T15:21:29.399Z",
       "sessionCount": 1,
-      "rank": 31
+      "rank": 30
     },
     {
       "name": "Nidhi",
@@ -646,7 +626,7 @@
       "streak": 0,
       "lastActive": "2026-05-01T17:19:30.044Z",
       "sessionCount": 1,
-      "rank": 32
+      "rank": 31
     },
     {
       "name": "Neel",
@@ -666,7 +646,7 @@
       "streak": 0,
       "lastActive": "2026-05-05T09:15:12.082Z",
       "sessionCount": 1,
-      "rank": 33
+      "rank": 32
     },
     {
       "name": "Akash",
@@ -686,7 +666,7 @@
       "streak": 0,
       "lastActive": "2026-05-01T17:17:21.379Z",
       "sessionCount": 1,
-      "rank": 34
+      "rank": 33
     },
     {
       "name": "Nidhin",
@@ -705,6 +685,26 @@
       "weeklyRuntimeMs": 0,
       "streak": 0,
       "lastActive": "2026-05-04T10:44:47.712Z",
+      "sessionCount": 1,
+      "rank": 34
+    },
+    {
+      "name": "Gopika",
+      "agentId": "gopika_workspace",
+      "tokensIn": 4638,
+      "tokensOut": 793,
+      "totalTokens": 5431,
+      "weeklyTokensIn": 4638,
+      "weeklyTokensOut": 793,
+      "weeklyTokens": 5431,
+      "estimatedHours": 0,
+      "weeklyHours": 0,
+      "totalCost": 0.0404,
+      "weeklyCost": 0.0404,
+      "totalRuntimeMs": 0,
+      "weeklyRuntimeMs": 0,
+      "streak": 0,
+      "lastActive": "2026-05-05T12:45:34.977Z",
       "sessionCount": 1,
       "rank": 35
     }
