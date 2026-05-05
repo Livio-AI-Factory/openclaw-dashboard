@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate usage.json from OpenClaw session data for the dashboard."""
+"""Generate usage.json from OpenClaw session data — real data, runs on VPS."""
 
 import json
 import glob
@@ -9,22 +9,15 @@ from datetime import datetime, timezone, timedelta
 IST = timezone(timedelta(hours=5, minutes=30))
 
 def get_week_start():
-    """Get Monday of current week in IST."""
     now = datetime.now(IST)
     monday = now - timedelta(days=now.weekday())
     return monday.replace(hour=0, minute=0, second=0, microsecond=0)
 
-def get_badge(hours):
-    if hours >= 15: return {"name": "Champion", "icon": "🏆", "color": "#f59e0b", "bgColor": "#fffbeb"}
-    if hours >= 10: return {"name": "Master", "icon": "🟣", "color": "#a855f7", "bgColor": "#faf5ff"}
-    if hours >= 8:  return {"name": "Achiever", "icon": "🔵", "color": "#3b82f6", "bgColor": "#eff6ff"}
-    if hours >= 5:  return {"name": "Explorer", "icon": "🟢", "color": "#22c55e", "bgColor": "#f0fdf4"}
-    if hours >= 2:  return {"name": "Learner", "icon": "🟡", "color": "#eab308", "bgColor": "#fefce8"}
-    return {"name": "Beginner", "icon": "🔴", "color": "#ef4444", "bgColor": "#fef2f2"}
-
 def main():
     agents_dir = os.environ.get("OPENCLAW_AGENTS_DIR", "/data/.openclaw/agents")
+    output_path = os.environ.get("OUTPUT_PATH", "public/data/usage.json")
     week_start = get_week_start()
+    week_start_ms = int(week_start.timestamp() * 1000)
     
     employees = []
     for sf in sorted(glob.glob(os.path.join(agents_dir, "*/sessions/sessions.json"))):
@@ -40,46 +33,60 @@ def main():
         except (json.JSONDecodeError, FileNotFoundError):
             continue
         
-        total_in = total_out = 0
-        weekly_in = weekly_out = 0
+        total_input = total_output = total_runtime = 0
+        total_cost = 0.0
+        weekly_input = weekly_output = weekly_runtime = 0
+        weekly_cost = 0.0
         last_active = ""
+        session_count = 0
         
         for k, v in data.items():
             if not isinstance(v, dict):
                 continue
-            ti = v.get("tokensIn", 0) or 0
-            to = v.get("tokensOut", 0) or 0
-            total_in += ti
-            total_out += to
             
-            # Check if session was active this week
-            updated = str(v.get("updatedAt", v.get("createdAt", "")))
-            if updated:
-                try:
-                    dt = datetime.fromisoformat(updated.replace("Z", "+00:00"))
-                    if dt.astimezone(IST) >= week_start:
-                        weekly_in += ti
-                        weekly_out += to
-                except (ValueError, TypeError):
-                    pass
+            inp = v.get("inputTokens", 0) or 0
+            out = v.get("outputTokens", 0) or 0
+            rt = v.get("runtimeMs", 0) or 0
+            cost = v.get("estimatedCostUsd", 0) or 0
             
-            if updated > last_active:
-                last_active = updated
+            total_input += inp
+            total_output += out
+            total_runtime += rt
+            total_cost += cost
+            session_count += 1
+            
+            # Weekly check using updatedAt (epoch ms)
+            updated = v.get("updatedAt", 0)
+            if updated and updated >= week_start_ms:
+                weekly_input += inp
+                weekly_output += out
+                weekly_runtime += rt
+                weekly_cost += cost
+            
+            if str(updated) > last_active:
+                last_active = str(updated)
         
-        weekly_hours = round(weekly_out / 5000, 1)
-        total_hours = round(total_out / 5000, 1)
+        total_hours = round(total_runtime / 3600000, 1)
+        weekly_hours = round(weekly_runtime / 3600000, 1)
         
         employees.append({
             "name": name,
             "agentId": agent,
-            "tokensIn": total_in,
-            "tokensOut": total_out,
-            "totalTokens": total_in + total_out,
+            "tokensIn": total_input,
+            "tokensOut": total_output,
+            "totalTokens": total_input + total_output,
+            "weeklyTokensIn": weekly_input,
+            "weeklyTokensOut": weekly_output,
+            "weeklyTokens": weekly_input + weekly_output,
             "estimatedHours": total_hours,
             "weeklyHours": weekly_hours,
-            "streak": 0,  # TODO: calculate from historical data
+            "totalCost": round(total_cost, 4),
+            "weeklyCost": round(weekly_cost, 4),
+            "totalRuntimeMs": total_runtime,
+            "weeklyRuntimeMs": weekly_runtime,
+            "streak": 0,
             "lastActive": last_active,
-            "badge": get_badge(weekly_hours),
+            "sessionCount": session_count,
         })
     
     # Sort by weekly hours desc
@@ -97,15 +104,16 @@ def main():
             "avgWeeklyHours": round(sum(e["weeklyHours"] for e in employees) / max(len(employees), 1), 1),
             "goalMetCount": len([e for e in employees if e["weeklyHours"] >= 10]),
             "totalTokens": sum(e["totalTokens"] for e in employees),
+            "totalWeeklyTokens": sum(e["weeklyTokens"] for e in employees),
+            "totalCost": round(sum(e["totalCost"] for e in employees), 2),
+            "weeklyCost": round(sum(e["weeklyCost"] for e in employees), 4),
         }
     }
     
-    output_path = os.environ.get("OUTPUT_PATH", "public/data/usage.json")
     with open(output_path, "w") as f:
         json.dump(output, f, indent=2)
     
-    print(f"Generated usage data for {len(employees)} employees")
-    print(f"Output: {output_path}")
+    print(f"✅ Generated usage data for {len(employees)} employees → {output_path}")
 
 if __name__ == "__main__":
     main()

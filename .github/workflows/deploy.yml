@@ -4,9 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 */4 * * *'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -32,8 +34,17 @@ jobs:
       - name: Build
         run: npm run build
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Fix GitHub Pages routing
+        run: |
+          # Next.js static export puts me.html at root but GitHub Pages
+          # needs me/index.html for /me/ to resolve
+          cd out
+          for page in me hr leaderboard; do
+            if [ -f "${page}.html" ] && [ -d "${page}" ]; then
+              cp "${page}.html" "${page}/index.html"
+              echo "✅ Copied ${page}.html → ${page}/index.html"
+            fi
+          done
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
