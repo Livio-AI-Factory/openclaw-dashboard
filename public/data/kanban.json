@@ -1,161 +1,88 @@
 {
-  "updated_at": "2026-05-07T14:00:00.000Z",
-  "total_projects": 7,
+  "updated_at": "2026-05-07T14:30:38.842321+00:00",
+  "total_projects": 2,
   "projects": [
+    {
+      "id": "chris-workspace-dc-vs-ai-dc",
+      "workspace": "chris_workspace",
+      "employee_name": "Chris",
+      "department": "Engineering",
+      "title": "Dc Vs Ai Dc",
+      "column": "done",
+      "status": "completed",
+      "current_phase": 3,
+      "total_phases": 3,
+      "phases": [
+        {
+          "name": "Content & Structure",
+          "status": "done"
+        },
+        {
+          "name": "PDF Build",
+          "status": "done"
+        },
+        {
+          "name": "Review & Deliver",
+          "status": "done"
+        }
+      ],
+      "cost_usd": 0.07,
+      "tokens_used": 28000,
+      "created_at": "2026-05-01T13:54:52.923977+00:00",
+      "updated_at": "2026-05-01T14:11:22.795137+00:00",
+      "files": [
+        "BRAINSTORM.md",
+        "MVP_PLAN.md",
+        "PROBLEM_STATEMENT.md",
+        "PROGRESS.md"
+      ]
+    },
     {
       "id": "raghu-workspace-revit-panel-stacking",
       "workspace": "raghu_workspace",
       "employee_name": "Raghu",
       "department": "Engineering",
-      "title": "Revit Panel Stacking Automation",
-      "column": "brainstorm",
-      "status": "active",
-      "current_phase": 1,
-      "total_phases": 4,
-      "phases": [
-        { "name": "Research & Ideation", "status": "running" },
-        { "name": "Design Spec", "status": "queued" },
-        { "name": "Prototype", "status": "queued" },
-        { "name": "Deliver", "status": "queued" }
-      ],
-      "cost_usd": 0.05,
-      "tokens_used": 18000,
-      "created_at": "2026-05-07T13:00:00Z",
-      "updated_at": "2026-05-07T13:55:00Z",
-      "files": ["BRAINSTORM.md"]
-    },
-    {
-      "id": "vignesh-workspace-ats-chatbot",
-      "workspace": "vignesh_workspace",
-      "employee_name": "Vignesh",
-      "department": "Engineering",
-      "title": "GoLivio ATS Chatbot Integration",
-      "column": "brainstorm",
-      "status": "paused",
-      "current_phase": 1,
-      "total_phases": 5,
-      "phases": [
-        { "name": "Requirements", "status": "running" },
-        { "name": "Architecture", "status": "queued" },
-        { "name": "Build", "status": "queued" },
-        { "name": "Test", "status": "queued" },
-        { "name": "Deploy", "status": "queued" }
-      ],
-      "cost_usd": 0.03,
-      "tokens_used": 12000,
-      "created_at": "2026-05-07T11:00:00Z",
-      "updated_at": "2026-05-07T12:00:00Z",
-      "files": ["BRAINSTORM.md"]
-    },
-    {
-      "id": "omkar-workspace-owj-pipeline",
-      "workspace": "omkar_workspace",
-      "employee_name": "Omkar",
-      "department": "Engineering",
-      "title": "OWJ Modelling Pipeline",
-      "column": "planning",
-      "status": "active",
-      "current_phase": 3,
-      "total_phases": 4,
-      "phases": [
-        { "name": "Content & Structure", "status": "done" },
-        { "name": "Architecture", "status": "done" },
-        { "name": "Generate Plan", "status": "running" },
-        { "name": "Review", "status": "queued" }
-      ],
-      "cost_usd": 0.12,
-      "tokens_used": 65000,
-      "created_at": "2026-05-07T08:00:00Z",
-      "updated_at": "2026-05-07T13:00:00Z",
-      "files": ["BRAINSTORM.md", "MVP_PLAN.md"]
-    },
-    {
-      "id": "shivakumar-workspace-facade-gen",
-      "workspace": "shivakumar_workspace",
-      "employee_name": "Shivakumar",
-      "department": "Engineering",
-      "title": "Revit Facade Generator",
-      "column": "planning",
-      "status": "active",
-      "current_phase": 2,
-      "total_phases": 3,
-      "phases": [
-        { "name": "Research", "status": "done" },
-        { "name": "Plan Generation", "status": "running" },
-        { "name": "Finalize", "status": "queued" }
-      ],
-      "cost_usd": 0.08,
-      "tokens_used": 40000,
-      "created_at": "2026-05-07T10:00:00Z",
-      "updated_at": "2026-05-07T12:30:00Z",
-      "files": ["BRAINSTORM.md"]
-    },
-    {
-      "id": "chris-workspace-dc-vs-ai-dc",
-      "workspace": "chris_workspace",
-      "employee_name": "Chris",
-      "department": "Sales",
-      "title": "DC vs AI DC Comparison Tool",
-      "column": "executing",
-      "status": "active",
-      "current_phase": 3,
-      "total_phases": 5,
-      "phases": [
-        { "name": "Read existing docs", "status": "done" },
-        { "name": "Analyze data", "status": "done" },
-        { "name": "Generate Components", "status": "running" },
-        { "name": "Integration", "status": "queued" },
-        { "name": "Polish & Deliver", "status": "queued" }
-      ],
-      "cost_usd": 0.18,
-      "tokens_used": 85000,
-      "created_at": "2026-05-07T09:00:00Z",
-      "updated_at": "2026-05-07T13:45:00Z",
-      "files": ["BRAINSTORM.md", "MVP_PLAN.md", "PROBLEM_STATEMENT.md"]
-    },
-    {
-      "id": "priya-workspace-onboarding-flow",
-      "workspace": "priya_workspace",
-      "employee_name": "Priya",
-      "department": "HR",
-      "title": "Employee Onboarding Automation",
-      "column": "executing",
-      "status": "active",
-      "current_phase": 2,
-      "total_phases": 4,
-      "phases": [
-        { "name": "Requirements", "status": "done" },
-        { "name": "Build Flow", "status": "running" },
-        { "name": "Testing", "status": "queued" },
-        { "name": "Deploy", "status": "queued" }
-      ],
-      "cost_usd": 0.09,
-      "tokens_used": 42000,
-      "created_at": "2026-05-07T07:00:00Z",
-      "updated_at": "2026-05-07T13:30:00Z",
-      "files": ["BRAINSTORM.md", "MVP_PLAN.md"]
-    },
-    {
-      "id": "anil-workspace-dc-monitor",
-      "workspace": "anil_workspace",
-      "employee_name": "Anil",
-      "department": "Engineering",
-      "title": "Data Center Monitor Dashboard",
+      "title": "Revit Panel Stacking",
       "column": "done",
       "status": "completed",
-      "current_phase": 4,
-      "total_phases": 4,
+      "current_phase": 6,
+      "total_phases": 6,
       "phases": [
-        { "name": "Research", "status": "done" },
-        { "name": "Design", "status": "done" },
-        { "name": "Build", "status": "done" },
-        { "name": "Deploy", "status": "done" }
+        {
+          "name": "Foundation & Dev Environment",
+          "status": "done"
+        },
+        {
+          "name": "Core Splitting Logic",
+          "status": "done"
+        },
+        {
+          "name": "Preview Mode & UI",
+          "status": "done"
+        },
+        {
+          "name": "Panel Tagging & Naming",
+          "status": "done"
+        },
+        {
+          "name": "Outputs (Schedule & Sheets)",
+          "status": "done"
+        },
+        {
+          "name": "Polish & Deployment",
+          "status": "done"
+        }
       ],
-      "cost_usd": 0.22,
-      "tokens_used": 110000,
-      "created_at": "2026-05-06T10:00:00Z",
-      "updated_at": "2026-05-07T08:00:00Z",
-      "files": ["BRAINSTORM.md", "MVP_PLAN.md", "PROGRESS.md"]
+      "cost_usd": 0.31,
+      "tokens_used": 157000,
+      "created_at": "2026-05-01T21:33:59.689477+00:00",
+      "updated_at": "2026-05-04T19:35:26.168224+00:00",
+      "files": [
+        "BRAINSTORM.md",
+        "MVP_PLAN.md",
+        "PROBLEM_STATEMENT.md",
+        "PROGRESS.md"
+      ]
     }
   ]
 }

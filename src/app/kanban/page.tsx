@@ -1,10 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { KanbanData } from '@/types/kanban';
 import KanbanBoard from '@/components/KanbanBoard';
 
 const FILTERS = ['All Workspaces', 'Engineering', 'HR', 'Sales', 'Design'];
+
+function LastSyncFooter({ lastSyncTime }: { lastSyncTime: number }) {
+  const [ago, setAgo] = useState('0s');
+  useEffect(() => {
+    const tick = () => {
+      const s = Math.floor((Date.now() - lastSyncTime) / 1000);
+      setAgo(s < 1 ? '0s' : `${s}s`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [lastSyncTime]);
+  return (
+    <div style={{ textAlign: 'center', padding: 14, fontSize: 10, color: 'rgba(0,212,255,0.25)', fontFamily: 'monospace', letterSpacing: 1 }}>
+      LAST SYNC {ago.toUpperCase()} AGO · AUTO-REFRESH 3S
+    </div>
+  );
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -20,16 +38,47 @@ function timeAgo(dateStr: string): string {
 export default function KanbanPage() {
   const [data, setData] = useState<KanbanData | null>(null);
   const [filter, setFilter] = useState('All Workspaces');
+  const [newProjectIds, setNewProjectIds] = useState<Set<string>>(new Set());
+  const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
 
   useEffect(() => {
-    const load = () => {
+    let lastUpdate: string | null = null;
+    let prevIds = new Set<string>();
+
+    const loadFull = () => {
       fetch('/openclaw-dashboard/data/kanban.json')
         .then(r => r.json())
-        .then(setData)
+        .then((d: KanbanData) => {
+          setData(d);
+          setLastSyncTime(Date.now());
+          // Detect new projects
+          const currentIds = new Set(d.projects.map(p => p.id));
+          const added = new Set<string>();
+          currentIds.forEach(id => { if (!prevIds.has(id)) added.add(id); });
+          if (prevIds.size > 0 && added.size > 0) setNewProjectIds(added);
+          prevIds = currentIds;
+          // Clear NEW badges after 10s
+          if (added.size > 0) setTimeout(() => setNewProjectIds(prev => {
+            const next = new Set(prev); added.forEach(id => next.delete(id)); return next;
+          }), 10000);
+        })
         .catch(() => {});
     };
-    load();
-    const interval = setInterval(load, 10000);
+
+    const poll = () => {
+      fetch('/openclaw-dashboard/data/kanban-updated.json')
+        .then(r => r.json())
+        .then((u: { last_update: string }) => {
+          if (lastUpdate === null || u.last_update !== lastUpdate) {
+            lastUpdate = u.last_update;
+            loadFull();
+          }
+        })
+        .catch(() => loadFull()); // fallback if tiny file missing
+    };
+
+    loadFull();
+    const interval = setInterval(poll, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -131,14 +180,10 @@ export default function KanbanPage() {
         </div>
 
         {/* Board */}
-        <KanbanBoard projects={projects} filter={filter} />
+        <KanbanBoard projects={projects} filter={filter} newProjectIds={newProjectIds} />
 
         {/* Footer */}
-        {data && (
-          <div style={{ textAlign: 'center', padding: 14, fontSize: 10, color: 'rgba(0,212,255,0.25)', fontFamily: 'monospace', letterSpacing: 1 }}>
-            LAST SYNC {timeAgo(data.updated_at).toUpperCase()} · AUTO-REFRESH 10S
-          </div>
-        )}
+        <LastSyncFooter lastSyncTime={lastSyncTime} />
       </div>
 
       <style jsx global>{`

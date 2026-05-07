@@ -67,7 +67,7 @@ function PhaseBar({ phases }: { phases: KanbanPhase[] }) {
   );
 }
 
-function ProjectCard({ project, isExpanded, onToggle }: { project: KanbanProject; isExpanded: boolean; onToggle: () => void }) {
+function ProjectCard({ project, isExpanded, onToggle, isNew }: { project: KanbanProject; isExpanded: boolean; onToggle: () => void; isNew?: boolean }) {
   const avatarColor = DEPT_COLORS[project.department] || '#00d4ff';
   const colCfg = COLUMN_CONFIG[project.column as ColumnKey];
 
@@ -83,7 +83,8 @@ function ProjectCard({ project, isExpanded, onToggle }: { project: KanbanProject
         position: 'relative',
         overflow: 'hidden',
         transition: 'all 0.25s',
-        animation: 'cardSpawn 0.5s ease-out',
+        animation: isNew ? 'newCard 5s ease-out forwards' : 'cardSpawn 0.5s ease-out',
+        boxShadow: isNew ? '0 0 20px #00d4ff88' : undefined,
         backdropFilter: 'blur(5px)',
       }}
       onMouseEnter={e => {
@@ -122,7 +123,12 @@ function ProjectCard({ project, isExpanded, onToggle }: { project: KanbanProject
 
       {/* Meta */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, color: 'rgba(0,212,255,0.3)', fontFamily: 'monospace' }}>
-        <StatusBadge status={project.status} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <StatusBadge status={project.status} />
+          {isNew && (
+            <span style={{ fontSize: 8, padding: '1px 5px', borderRadius: 3, fontWeight: 700, background: 'rgba(0,212,255,0.15)', color: '#00d4ff', border: '1px solid #00d4ff44', fontFamily: 'monospace', letterSpacing: 1, animation: 'fadeOut 10s ease-out forwards' }}>NEW</span>
+          )}
+        </div>
         <span>{timeAgo(project.updated_at)}</span>
       </div>
 
@@ -136,7 +142,7 @@ function ProjectCard({ project, isExpanded, onToggle }: { project: KanbanProject
   );
 }
 
-export default function KanbanBoard({ projects, filter }: { projects: KanbanProject[]; filter: string }) {
+export default function KanbanBoard({ projects, filter, newProjectIds }: { projects: KanbanProject[]; filter: string; newProjectIds?: Set<string> }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const filtered = filter === 'All Workspaces'
@@ -179,6 +185,7 @@ export default function KanbanBoard({ projects, filter }: { projects: KanbanProj
                   project={p}
                   isExpanded={expandedId === p.id}
                   onToggle={() => setExpandedId(expandedId === p.id ? null : p.id)}
+                  isNew={newProjectIds?.has(p.id)}
                 />
               ))}
               {colProjects.length === 0 && (
@@ -194,6 +201,14 @@ export default function KanbanBoard({ projects, filter }: { projects: KanbanProj
         @keyframes segPulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
+        }
+        @keyframes newCard {
+          0% { box-shadow: 0 0 20px #00d4ff88; border-color: #00d4ff; }
+          100% { box-shadow: none; border-color: rgba(0,212,255,0.08); }
+        }
+        @keyframes fadeOut {
+          0%, 80% { opacity: 1; }
+          100% { opacity: 0; }
         }
         @keyframes cardSpawn {
           0% { opacity: 0; transform: scale(0.85) translateY(16px); }
