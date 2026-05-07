@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { KanbanData, KanbanProject } from '@/types/kanban';
+import { KanbanData } from '@/types/kanban';
 import KanbanBoard from '@/components/KanbanBoard';
 
 const FILTERS = ['All Workspaces', 'Engineering', 'HR', 'Sales', 'Design'];
@@ -43,68 +43,116 @@ export default function KanbanPage() {
   }).length;
 
   return (
-    <main style={{ minHeight: '100vh', background: '#0a0a1a', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Top bar */}
-      <div style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #7c3aed33' }}>
-        <h1 style={{ fontSize: 18, fontWeight: 700, background: 'linear-gradient(90deg, #a78bfa, #7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          LIVIO KANBAN MISSION CONTROL
-        </h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6ee7b7' }}>
-          <div style={{ width: 8, height: 8, background: '#6ee7b7', borderRadius: '50%', animation: 'pulse 1.5s infinite' }} />
-          LIVE — {activeCount} projects active
-        </div>
-      </div>
+    <main style={{ minHeight: '100vh', background: '#060b18', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden' }}>
+      {/* Grid background overlay */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        backgroundImage: 'linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
 
-      {/* Stats */}
-      <div style={{ display: 'flex', gap: 16, padding: '16px 28px', background: '#0f0f23', borderBottom: '1px solid #1e1e3a', flexWrap: 'wrap' }}>
-        {[
-          { label: 'Active Projects', value: activeCount, color: '#a78bfa' },
-          { label: 'Running Now', value: runningNow, color: '#6ee7b7' },
-          { label: "Today's Cost", value: `$${todayCost.toFixed(2)}`, color: '#fbbf24' },
-          { label: 'Stuck (>24h)', value: stuckCount, color: '#f87171' },
-        ].map(s => (
-          <div key={s.label} style={{ background: 'linear-gradient(135deg, #1a1a2e, #1e1e3a)', border: '1px solid #7c3aed22', borderRadius: 12, padding: '14px 20px', flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1 }}>{s.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 700, marginTop: 4, color: s.color }}>{s.value}</div>
+      {/* Scan line overlay */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1,
+        background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.008) 2px, rgba(0,212,255,0.008) 4px)',
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 2 }}>
+        {/* Top bar */}
+        <div style={{ background: 'linear-gradient(180deg, #0a0f1e 0%, #060b18 100%)', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,212,255,0.15)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            {/* Logo */}
+            <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(0,212,255,0.4)', boxShadow: '0 0 20px rgba(0,212,255,0.2)', animation: 'logoPulse 3s infinite', position: 'relative' }}>
+              <img src="/openclaw-dashboard/logo.png" alt="OpenClaw" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#00d4ff', letterSpacing: 3, textShadow: '0 0 10px rgba(0,212,255,0.5)' }}>MISSION CONTROL</div>
+              <div style={{ fontSize: 9, color: 'rgba(0,212,255,0.5)', letterSpacing: 2, fontFamily: 'monospace' }}>OPENCLAW // LIVIO</div>
+            </div>
           </div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 10, padding: '12px 28px', background: '#0a0a1a' }}>
-        {FILTERS.map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              background: filter === f ? '#7c3aed22' : '#1a1a2e',
-              border: `1px solid ${filter === f ? '#7c3aed' : '#2d2d5a'}`,
-              color: filter === f ? '#a78bfa' : '#94a3b8',
-              padding: '6px 14px',
-              borderRadius: 8,
-              fontSize: 11,
-              cursor: 'pointer',
-            }}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* Board */}
-      <KanbanBoard projects={projects} filter={filter} />
-
-      {/* Last updated */}
-      {data && (
-        <div style={{ textAlign: 'center', padding: 16, fontSize: 11, color: '#475569' }}>
-          Last updated {timeAgo(data.updated_at)} · Auto-refreshes every 10s
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#00ff88', fontFamily: 'monospace' }}>
+            <div style={{ width: 8, height: 8, background: '#00ff88', borderRadius: '50%', boxShadow: '0 0 8px #00ff88', animation: 'pulse 1.5s infinite' }} />
+            LIVE — {activeCount} ACTIVE
+          </div>
         </div>
-      )}
+
+        {/* Cyan accent line */}
+        <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, #00d4ff, transparent)', boxShadow: '0 0 10px rgba(0,212,255,0.3)' }} />
+
+        {/* Stats row */}
+        <div style={{ display: 'flex', gap: 14, padding: '14px 24px', flexWrap: 'wrap' }}>
+          {[
+            { label: 'ACTIVE PROJECTS', value: activeCount, color: '#00d4ff' },
+            { label: 'RUNNING NOW', value: runningNow, color: '#00ff88' },
+            { label: "TODAY'S COST", value: `$${todayCost.toFixed(2)}`, color: '#ffaa00' },
+            { label: 'STUCK (>24H)', value: stuckCount, color: '#ff3366' },
+          ].map(s => (
+            <div key={s.label} style={{
+              background: 'rgba(0,212,255,0.03)',
+              border: '1px solid rgba(0,212,255,0.1)',
+              borderRadius: 10,
+              padding: '12px 18px',
+              flex: 1,
+              minWidth: 140,
+              backdropFilter: 'blur(10px)',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              {/* Scan line inside card */}
+              <div style={{ position: 'absolute', top: 0, left: '-100%', width: '100%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(0,212,255,0.05), transparent)', animation: 'scanLine 4s infinite linear' }} />
+              <div style={{ fontSize: 9, color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase', letterSpacing: 1.5, fontFamily: 'monospace', position: 'relative' }}>{s.label}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, marginTop: 4, color: s.color, textShadow: `0 0 15px ${s.color}55`, position: 'relative', fontFamily: 'monospace' }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <div style={{ display: 'flex', gap: 8, padding: '8px 24px 12px', flexWrap: 'wrap' }}>
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              style={{
+                background: filter === f ? 'rgba(0,212,255,0.1)' : 'rgba(0,212,255,0.02)',
+                border: `1px solid ${filter === f ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.08)'}`,
+                color: filter === f ? '#00d4ff' : 'rgba(0,212,255,0.4)',
+                padding: '6px 14px',
+                borderRadius: 6,
+                fontSize: 10,
+                cursor: 'pointer',
+                fontFamily: 'monospace',
+                letterSpacing: 1,
+                textTransform: 'uppercase',
+                transition: 'all 0.2s',
+                boxShadow: filter === f ? '0 0 10px rgba(0,212,255,0.15)' : 'none',
+              }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {/* Board */}
+        <KanbanBoard projects={projects} filter={filter} />
+
+        {/* Footer */}
+        {data && (
+          <div style={{ textAlign: 'center', padding: 14, fontSize: 10, color: 'rgba(0,212,255,0.25)', fontFamily: 'monospace', letterSpacing: 1 }}>
+            LAST SYNC {timeAgo(data.updated_at).toUpperCase()} · AUTO-REFRESH 10S
+          </div>
+        )}
+      </div>
 
       <style jsx global>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.4; transform: scale(1.3); }
+        }
+        @keyframes logoPulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+          50% { box-shadow: 0 0 30px rgba(0,212,255,0.4), 0 0 60px rgba(0,212,255,0.1); }
+        }
+        @keyframes scanLine {
+          0% { left: -100%; }
+          100% { left: 200%; }
         }
         @media (max-width: 768px) {
           .kanban-board { flex-direction: column !important; padding: 12px !important; }

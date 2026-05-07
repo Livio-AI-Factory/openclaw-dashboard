@@ -5,43 +5,43 @@ import { useState } from 'react';
 import SubAgentPanel from './SubAgentPanel';
 
 const COLUMN_CONFIG = {
-  brainstorm: { icon: '💡', color: '#fbbf24', label: 'Brainstorm' },
-  planning: { icon: '📋', color: '#60a5fa', label: 'Planning' },
-  executing: { icon: '🚀', color: '#a78bfa', label: 'Executing' },
-  done: { icon: '✅', color: '#6ee7b7', label: 'Done' },
+  brainstorm: { icon: '◈', color: '#ffaa00', label: 'BRAINSTORM' },
+  planning: { icon: '◉', color: '#0066ff', label: 'PLANNING' },
+  executing: { icon: '⬡', color: '#00d4ff', label: 'EXECUTING' },
+  done: { icon: '◆', color: '#00ff88', label: 'COMPLETE' },
 } as const;
 
 type ColumnKey = keyof typeof COLUMN_CONFIG;
 
 const DEPT_COLORS: Record<string, string> = {
-  Engineering: '#7c3aed',
-  HR: '#ec4899',
-  Sales: '#f59e0b',
+  Engineering: '#00d4ff',
+  HR: '#ff6eb4',
+  Sales: '#ffaa00',
   Design: '#06b6d4',
-  Marketing: '#10b981',
+  Marketing: '#00ff88',
 };
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return 'JUST NOW';
+  if (mins < 60) return `${mins}M AGO`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return `${hrs}H AGO`;
   const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return `${days}D AGO`;
 }
 
 function StatusBadge({ status }: { status: KanbanProject['status'] }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    active: { label: 'Active', cls: 'background:#7c3aed22;color:#a78bfa' },
-    paused: { label: 'Paused', cls: 'background:#fbbf2422;color:#fbbf24' },
-    completed: { label: 'Completed', cls: 'background:#6ee7b722;color:#6ee7b7' },
-    errored: { label: 'Errored', cls: 'background:#f8717122;color:#f87171' },
+  const map: Record<string, { label: string; bg: string; fg: string }> = {
+    active: { label: 'ACTIVE', bg: 'rgba(0,212,255,0.12)', fg: '#00d4ff' },
+    paused: { label: 'PAUSED', bg: 'rgba(255,170,0,0.12)', fg: '#ffaa00' },
+    completed: { label: 'COMPLETE', bg: 'rgba(0,255,136,0.12)', fg: '#00ff88' },
+    errored: { label: 'ERROR', bg: 'rgba(255,51,102,0.12)', fg: '#ff3366' },
   };
   const s = map[status] || map.active;
   return (
-    <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 4, fontWeight: 600, textTransform: 'uppercase', ...Object.fromEntries(s.cls.split(';').map(p => { const [k,v] = p.split(':'); return [k.trim(), v]; })) }}>
+    <span style={{ fontSize: 8, padding: '2px 7px', borderRadius: 3, fontWeight: 700, textTransform: 'uppercase', fontFamily: 'monospace', letterSpacing: 1, background: s.bg, color: s.fg, border: `1px solid ${s.fg}33` }}>
       {s.label}
     </span>
   );
@@ -49,16 +49,17 @@ function StatusBadge({ status }: { status: KanbanProject['status'] }) {
 
 function PhaseBar({ phases }: { phases: KanbanPhase[] }) {
   return (
-    <div style={{ display: 'flex', gap: 3, marginBottom: 8 }}>
+    <div style={{ display: 'flex', gap: 2, marginBottom: 8 }}>
       {phases.map((p, i) => (
         <div
           key={i}
           style={{
-            height: 4,
-            borderRadius: 2,
+            height: 3,
+            borderRadius: 1,
             flex: 1,
-            background: p.status === 'done' ? '#6ee7b7' : p.status === 'running' ? '#a78bfa' : '#1e1e3a',
-            animation: p.status === 'running' ? 'segPulse 1s infinite' : undefined,
+            background: p.status === 'done' ? '#00ff88' : p.status === 'running' ? '#00d4ff' : 'rgba(0,212,255,0.08)',
+            boxShadow: p.status === 'done' ? '0 0 4px #00ff8866' : p.status === 'running' ? '0 0 8px #00d4ff66' : 'none',
+            animation: p.status === 'running' ? 'segPulse 1.2s infinite' : undefined,
           }}
         />
       ))}
@@ -67,34 +68,52 @@ function PhaseBar({ phases }: { phases: KanbanPhase[] }) {
 }
 
 function ProjectCard({ project, isExpanded, onToggle }: { project: KanbanProject; isExpanded: boolean; onToggle: () => void }) {
-  const avatarColor = DEPT_COLORS[project.department] || '#7c3aed';
+  const avatarColor = DEPT_COLORS[project.department] || '#00d4ff';
+  const colCfg = COLUMN_CONFIG[project.column as ColumnKey];
+
   return (
     <div
       onClick={onToggle}
       style={{
-        background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
-        border: `1px solid ${isExpanded ? '#7c3aed' : '#2d2d5a'}`,
-        borderRadius: 12,
-        padding: 14,
+        background: isExpanded ? 'rgba(0,212,255,0.04)' : 'rgba(0,212,255,0.02)',
+        border: `1px solid ${isExpanded ? 'rgba(0,212,255,0.35)' : 'rgba(0,212,255,0.08)'}`,
+        borderRadius: 8,
+        padding: 12,
         cursor: 'pointer',
         position: 'relative',
         overflow: 'hidden',
-        transition: 'border-color 0.2s',
-        animation: 'cardSpawn 0.4s ease-out',
+        transition: 'all 0.25s',
+        animation: 'cardSpawn 0.5s ease-out',
+        backdropFilter: 'blur(5px)',
       }}
-      onMouseEnter={e => { if (!isExpanded) (e.currentTarget as HTMLDivElement).style.borderColor = '#7c3aed88'; }}
-      onMouseLeave={e => { if (!isExpanded) (e.currentTarget as HTMLDivElement).style.borderColor = '#2d2d5a'; }}
+      onMouseEnter={e => {
+        if (!isExpanded) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(0,212,255,0.25)';
+          (e.currentTarget as HTMLDivElement).style.boxShadow = '0 0 15px rgba(0,212,255,0.08)';
+        }
+      }}
+      onMouseLeave={e => {
+        if (!isExpanded) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(0,212,255,0.08)';
+          (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
+        }
+      }}
     >
+      {/* Holographic scan line for executing cards */}
+      {project.column === 'executing' && (
+        <div style={{ position: 'absolute', top: 0, left: '-100%', width: '100%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(0,212,255,0.04), transparent)', animation: 'scanLine 3s infinite linear', pointerEvents: 'none' }} />
+      )}
+
       {/* Employee line */}
-      <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 18, height: 18, borderRadius: '50%', background: `${avatarColor}55`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: avatarColor }}>
+      <div style={{ fontSize: 10, color: 'rgba(0,212,255,0.5)', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'monospace', letterSpacing: 0.5 }}>
+        <div style={{ width: 18, height: 18, borderRadius: '50%', background: `${avatarColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: avatarColor, border: `1px solid ${avatarColor}33` }}>
           {project.employee_name[0]}
         </div>
-        {project.employee_name} — {project.department}
+        {project.employee_name.toUpperCase()} — {project.department.toUpperCase()}
       </div>
 
       {/* Title */}
-      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, lineHeight: 1.4, color: '#e2e8f0' }}>
+      <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, lineHeight: 1.4, color: '#e2e8f0', textShadow: isExpanded ? '0 0 8px rgba(0,212,255,0.2)' : 'none' }}>
         {project.title}
       </div>
 
@@ -102,14 +121,14 @@ function ProjectCard({ project, isExpanded, onToggle }: { project: KanbanProject
       <PhaseBar phases={project.phases} />
 
       {/* Meta */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 10, color: '#64748b' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, color: 'rgba(0,212,255,0.3)', fontFamily: 'monospace' }}>
         <StatusBadge status={project.status} />
         <span>{timeAgo(project.updated_at)}</span>
       </div>
 
       {/* Expanded sub-agent panel */}
       {isExpanded && (
-        <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+        <div style={{ animation: 'panelExpand 0.4s ease-out' }}>
           <SubAgentPanel project={project} />
         </div>
       )}
@@ -127,19 +146,33 @@ export default function KanbanBoard({ projects, filter }: { projects: KanbanProj
   const columns: ColumnKey[] = ['brainstorm', 'planning', 'executing', 'done'];
 
   return (
-    <div style={{ display: 'flex', gap: 16, padding: '20px 28px', minHeight: '70vh', overflowX: 'auto' }}>
+    <div className="kanban-board" style={{ display: 'flex', gap: 12, padding: '12px 24px', minHeight: '65vh', overflowX: 'auto' }}>
       {columns.map(col => {
         const cfg = COLUMN_CONFIG[col];
         const colProjects = filtered.filter(p => p.column === col);
         return (
-          <div key={col} style={{ flex: 1, minWidth: 280, background: '#0f0f23', borderRadius: 16, border: '1px solid #1e1e3a', display: 'flex', flexDirection: 'column' }}>
+          <div key={col} style={{ flex: 1, minWidth: 260, display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <div style={{ padding: 16, fontWeight: 700, fontSize: 14, textTransform: 'uppercase', letterSpacing: 1.5, borderBottom: '1px solid #1e1e3a', display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0' }}>
-              <span>{cfg.icon}</span> {cfg.label}
-              <span style={{ background: '#7c3aed33', color: '#a78bfa', fontSize: 11, padding: '2px 8px', borderRadius: 8 }}>{colProjects.length}</span>
+            <div style={{
+              padding: '10px 14px',
+              fontWeight: 700,
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              color: cfg.color,
+              fontFamily: 'monospace',
+              borderBottom: `1px solid ${cfg.color}22`,
+              marginBottom: 8,
+              textShadow: `0 0 10px ${cfg.color}44`,
+            }}>
+              <span style={{ fontSize: 14 }}>{cfg.icon}</span> {cfg.label}
+              <span style={{ background: `${cfg.color}15`, color: cfg.color, fontSize: 10, padding: '1px 7px', borderRadius: 4, border: `1px solid ${cfg.color}22` }}>{colProjects.length}</span>
             </div>
             {/* Body */}
-            <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
               {colProjects.map(p => (
                 <ProjectCard
                   key={p.id}
@@ -149,7 +182,7 @@ export default function KanbanBoard({ projects, filter }: { projects: KanbanProj
                 />
               ))}
               {colProjects.length === 0 && (
-                <div style={{ color: '#475569', fontSize: 12, textAlign: 'center', padding: 24 }}>No projects</div>
+                <div style={{ color: 'rgba(0,212,255,0.15)', fontSize: 10, textAlign: 'center', padding: 30, fontFamily: 'monospace', letterSpacing: 1 }}>NO DATA</div>
               )}
             </div>
           </div>
@@ -160,24 +193,32 @@ export default function KanbanBoard({ projects, filter }: { projects: KanbanProj
       <style jsx global>{`
         @keyframes segPulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
+          50% { opacity: 0.4; }
         }
         @keyframes cardSpawn {
-          0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+          0% { opacity: 0; transform: scale(0.85) translateY(16px); }
           100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes fadeIn {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
+        @keyframes panelExpand {
+          0% { opacity: 0; max-height: 0; }
+          100% { opacity: 1; max-height: 500px; }
         }
         @keyframes iconGlow {
-          0%, 100% { box-shadow: 0 0 4px #a78bfa44; }
-          50% { box-shadow: 0 0 12px #a78bfa88; }
+          0%, 100% { box-shadow: 0 0 4px rgba(0,212,255,0.3); }
+          50% { box-shadow: 0 0 16px rgba(0,212,255,0.6), 0 0 32px rgba(0,212,255,0.15); }
         }
-        @keyframes progFill {
-          0% { width: 30%; }
-          50% { width: 70%; }
-          100% { width: 30%; }
+        @keyframes shimmer {
+          0% { background-position: -200px 0; }
+          100% { background-position: 200px 0; }
+        }
+        @keyframes scanLine {
+          0% { left: -100%; }
+          100% { left: 200%; }
+        }
+        @keyframes materialize {
+          0% { opacity: 0; transform: scaleX(0.3); filter: blur(4px); }
+          50% { opacity: 0.6; filter: blur(1px); }
+          100% { opacity: 1; transform: scaleX(1); filter: blur(0); }
         }
         @media (max-width: 768px) {
           .kanban-board { flex-direction: column !important; }
