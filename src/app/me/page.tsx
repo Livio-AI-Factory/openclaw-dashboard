@@ -144,15 +144,15 @@ export default function MePage() {
           <div className="flex items-center gap-3">
             {isAdmin && (
               <Link href="/openclaw-dashboard/hr" style={{
-                padding: '4px 12px', borderRadius: 4, fontSize: 11, fontFamily: 'monospace', letterSpacing: 1,
-                border: '1px solid rgba(255,51,102,0.4)', color: '#ff3366', background: 'rgba(255,51,102,0.06)',
-                textDecoration: 'none',
+                padding: '6px 16px', borderRadius: 6, fontSize: 13, fontFamily: 'monospace', fontWeight: 700, letterSpacing: 1,
+                border: '1px solid rgba(255,51,102,0.5)', color: '#ff3366', background: 'rgba(255,51,102,0.08)',
+                textDecoration: 'none', textShadow: '0 0 8px rgba(255,51,102,0.3)',
               }}>
-                ADMIN PANEL
-              </Link>
+              ◆ ADMIN PANEL
+            </Link>
             )}
-            <Link href="/openclaw-dashboard" style={{ color: 'rgba(0,212,255,0.5)', fontFamily: 'monospace', fontSize: 12, textDecoration: 'none' }}>
-              ← HOME
+            <Link href="/openclaw-dashboard" style={{ color: 'rgba(0,212,255,0.6)', fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', padding: '6px 12px' }}>
+              ◈ HOME
             </Link>
           </div>
         </div>
