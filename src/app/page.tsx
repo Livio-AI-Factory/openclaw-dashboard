@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import ParticleBackground from '@/components/ParticleBackground';
-import GlowCard from '@/components/GlowCard';
 import AnimatedCounter from '@/components/AnimatedCounter';
 
 interface Summary {
@@ -14,10 +12,17 @@ interface Summary {
   totalCost: number;
 }
 
+const NAV_CARDS = [
+  { icon: '◈', title: 'Home', desc: 'System overview', href: '/' },
+  { icon: '⬡', title: 'HR', desc: 'Team analytics & insights', href: '/hr' },
+  { icon: '◉', title: 'Leaderboard', desc: 'Top performers this week', href: '/leaderboard' },
+  { icon: '◆', title: 'Watchdog', desc: 'Live anomaly detection', href: '/watchdog' },
+  { icon: '⟐', title: 'My Dashboard', desc: 'Your personal AI usage stats', href: '/me' },
+  { icon: '✓', title: 'Kanban', desc: 'Mission control board', href: '/kanban' },
+];
+
 export default function LandingPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
-  const [typed, setTyped] = useState('');
-  const fullText = 'Track. Earn. Launch. 🚀';
 
   useEffect(() => {
     const loadData = () => {
@@ -27,124 +32,99 @@ export default function LandingPage() {
         .catch(() => {});
     };
     loadData();
-    const interval = setInterval(loadData, 60000); // Refresh every 60s
+    const interval = setInterval(loadData, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    let i = 0;
-    const timer = setInterval(() => {
-      if (i < fullText.length) {
-        setTyped(fullText.slice(0, i + 1));
-        i++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 80);
-    return () => clearInterval(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const cards = [
-    {
-      icon: '👤',
-      title: 'My Dashboard',
-      desc: 'Your personal AI usage stats',
-      href: '/me',
-      glow: 'rgba(0,240,255,0.3)',
-      delay: '0s',
-    },
-    {
-      icon: '👔',
-      title: 'HR Dashboard',
-      desc: 'Team analytics & insights',
-      href: '/hr',
-      glow: 'rgba(176,0,255,0.3)',
-      delay: '0.5s',
-    },
-    {
-      icon: '🏆',
-      title: 'Leaderboard',
-      desc: 'Top performers this week',
-      href: '/leaderboard',
-      glow: 'rgba(0,255,136,0.3)',
-      delay: '1s',
-    },
-    {
-      icon: '🛡️',
-      title: 'Watchdog',
-      desc: 'Live anomaly detection',
-      href: '/watchdog',
-      glow: 'rgba(239,68,68,0.3)',
-      delay: '1.5s',
-    },
-    {
-      icon: '🎯',
-      title: 'Kanban',
-      desc: 'Mission control board',
-      href: '/kanban',
-      glow: 'rgba(124,58,237,0.3)',
-      delay: '2s',
-    },
-  ];
-
   return (
-    <main className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a0a1a 0%, #0f0f2e 40%, #1a0a2e 70%, #0a0a1a 100%)' }}>
-      <ParticleBackground />
+    <main style={{ minHeight: '100vh', background: '#060b18', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden' }}>
+      {/* Grid background overlay */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        backgroundImage: 'linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-12">
-        {/* Hero */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-bold text-white animate-neon-glow mb-4">
-            OpenClaw Dashboard
+      {/* Scan line overlay */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1,
+        background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.008) 2px, rgba(0,212,255,0.008) 4px)',
+      }} />
+
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '40px 20px' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <h1 style={{ fontSize: 48, fontWeight: 800, color: '#00d4ff', letterSpacing: 6, textShadow: '0 0 10px rgba(0,212,255,0.5)', margin: 0 }}>
+            LIVIO AI INFRASTRUCTURE
           </h1>
-          <p className="text-2xl md:text-3xl text-purple-200 font-mono min-h-[2.5rem]">
-            {typed}<span className="animate-pulse">|</span>
-          </p>
-          <p className="text-lg text-purple-300/60 mt-2">AI Usage Analytics for Team Livio</p>
+          <div style={{ fontSize: 12, color: 'rgba(0,212,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginTop: 8 }}>
+            OPENCLAW // DASHBOARD
+          </div>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-4xl w-full">
-          {cards.map(card => (
-            <Link key={card.href} href={card.href} className="block">
-              <GlowCard glowColor={card.glow} className="text-center animate-float" style={{ animationDelay: card.delay } as React.CSSProperties}>
-                <div className="text-5xl mb-4">{card.icon}</div>
-                <h2 className="text-xl font-bold text-white mb-2">{card.title}</h2>
-                <p className="text-purple-300/70 text-sm">{card.desc}</p>
-              </GlowCard>
+        {/* Cyan accent line */}
+        <div style={{ width: '60%', maxWidth: 600, height: 1, background: 'linear-gradient(90deg, transparent, #00d4ff, transparent)', boxShadow: '0 0 10px rgba(0,212,255,0.3)', marginBottom: 32 }} />
+
+        {/* Stats row */}
+        {summary && (
+          <div style={{ display: 'flex', gap: 14, marginBottom: 40, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 800 }}>
+            {[
+              { label: 'ACTIVE USERS', value: summary.totalEmployees, color: '#00d4ff' },
+              { label: 'WEEKLY HOURS', value: summary.totalWeeklyHours.toFixed(1), color: '#00ff88' },
+              { label: 'POWER USERS', value: summary.goalMetCount, color: '#ffaa00' },
+              { label: 'TOTAL COST', value: `$${summary.totalCost.toFixed(2)}`, color: '#ff3366' },
+            ].map(s => (
+              <div key={s.label} style={{
+                background: 'rgba(0,212,255,0.03)',
+                border: '1px solid rgba(0,212,255,0.1)',
+                borderRadius: 10,
+                padding: '12px 18px',
+                minWidth: 140,
+                backdropFilter: 'blur(10px)',
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: 9, color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase', letterSpacing: 1.5, fontFamily: 'monospace' }}>{s.label}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, marginTop: 4, color: s.color, textShadow: `0 0 15px ${s.color}55`, fontFamily: 'monospace' }}>{s.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Navigation Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, maxWidth: 800, width: '100%' }}>
+          {NAV_CARDS.map(card => (
+            <Link key={card.href} href={card.href} style={{ textDecoration: 'none' }}>
+              <div style={{
+                background: 'rgba(0,212,255,0.02)',
+                border: '1px solid rgba(0,212,255,0.08)',
+                borderRadius: 12,
+                padding: '24px 20px',
+                textAlign: 'center',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s',
+                cursor: 'pointer',
+              }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(0,212,255,0.5)';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = '0 0 20px rgba(0,212,255,0.15), inset 0 0 20px rgba(0,212,255,0.03)';
+                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(0,212,255,0.08)';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
+                  (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                }}
+              >
+                <div style={{ fontSize: 32, color: '#00d4ff', marginBottom: 12, fontFamily: 'monospace' }}>{card.icon}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#e2e8f0', marginBottom: 6 }}>{card.title}</div>
+                <div style={{ fontSize: 12, color: 'rgba(0,212,255,0.4)', fontFamily: 'monospace' }}>{card.desc}</div>
+              </div>
             </Link>
           ))}
         </div>
 
-        {/* Stats Bar */}
-        {summary && (
-          <div className="flex flex-wrap justify-center gap-8 mb-12">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">
-                <AnimatedCounter target={summary.totalEmployees} />
-              </div>
-              <div className="text-purple-300/60 text-sm">Employees</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">
-                <AnimatedCounter target={summary.totalWeeklyHours} decimals={1} />
-              </div>
-              <div className="text-purple-300/60 text-sm">Weekly Hours</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-400">
-                <AnimatedCounter target={summary.goalMetCount} />
-              </div>
-              <div className="text-purple-300/60 text-sm">Power Users</div>
-            </div>
-          </div>
-        )}
-
         {/* Footer */}
-        <p className="text-purple-300/20 text-xs" style={{ textShadow: '0 0 10px rgba(168,85,247,0.3)' }}>
-          Powered by OpenClaw · Livio AI
-        </p>
+        <div style={{ marginTop: 60, fontSize: 10, color: 'rgba(0,212,255,0.25)', fontFamily: 'monospace', letterSpacing: 1 }}>
+          POWERED BY OPENCLAW · LIVIO AI
+        </div>
       </div>
     </main>
   );

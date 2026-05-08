@@ -308,7 +308,7 @@ export default function ExportPDFButton({ employees, viewMode }: Props) {
     <button
       onClick={handleExport}
       disabled={exporting}
-      className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-xl transition-colors text-sm shadow-lg shadow-purple-500/20"
+      className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-cyan-800 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-xl transition-colors text-sm shadow-lg shadow-cyan-500/20"
     >
       {exporting ? (
         <>

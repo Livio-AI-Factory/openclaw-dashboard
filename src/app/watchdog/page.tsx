@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import ParticleBackground from '@/components/ParticleBackground';
-import GlowCard from '@/components/GlowCard';
 
 interface Incident {
   type: string;
@@ -41,23 +39,23 @@ interface ScanData {
 }
 
 const SEVERITY_CONFIG = {
-  critical: { color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.4)', icon: '🚨', label: 'Critical', glow: '0 0 20px rgba(239,68,68,0.3)' },
-  warning: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.4)', icon: '🟡', label: 'Warning', glow: '0 0 20px rgba(245,158,11,0.3)' },
-  info: { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.4)', icon: 'ℹ️', label: 'Info', glow: '0 0 20px rgba(59,130,246,0.3)' },
+  critical: { color: '#ff3366', bg: 'rgba(255,51,102,0.08)', border: 'rgba(255,51,102,0.3)', icon: '◆', label: 'Critical' },
+  warning: { color: '#ffaa00', bg: 'rgba(255,170,0,0.08)', border: 'rgba(255,170,0,0.3)', icon: '◉', label: 'Warning' },
+  info: { color: '#00d4ff', bg: 'rgba(0,212,255,0.08)', border: 'rgba(0,212,255,0.3)', icon: '◈', label: 'Info' },
 };
 
 const STATUS_CONFIG = {
-  started: { color: '#a855f7', icon: '⚡', label: 'Fixing' },
-  success: { color: '#22c55e', icon: '✅', label: 'Fixed' },
-  failed: { color: '#ef4444', icon: '❌', label: 'Failed' },
-  skipped: { color: '#6b7280', icon: '⏭️', label: 'Skipped' },
+  started: { color: '#00d4ff', icon: '◈', label: 'Fixing' },
+  success: { color: '#00ff88', icon: '✓', label: 'Fixed' },
+  failed: { color: '#ff3366', icon: '◆', label: 'Failed' },
+  skipped: { color: 'rgba(0,212,255,0.3)', icon: '—', label: 'Skipped' },
 };
 
 const TYPE_ICONS: Record<string, string> = {
-  cost_spike: '💰', token_flood: '🔢', daily_spend: '💳', session_cost: '💵',
-  employee_budget: '📊', tool_loop: '🔄', error_storm: '❌', idle_session: '⏳',
-  zombie_session: '🧟', unusual_hours: '🌙', expensive_model: '💸',
-  ram_high: '🧠', cpu_high: '⚙️', container_restarts: '🔄',
+  cost_spike: '◈', token_flood: '◈', daily_spend: '◈', session_cost: '◈',
+  employee_budget: '◉', tool_loop: '◉', error_storm: '◆', idle_session: '◉',
+  zombie_session: '◆', unusual_hours: '◉', expensive_model: '◈',
+  ram_high: '◆', cpu_high: '◆', container_restarts: '◉',
 };
 
 const METRIC_NAMES: Record<string, string> = {
@@ -79,90 +77,39 @@ function ws(ws: string) {
   return ws.replace('_workspace', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-// Animated scanning line component
-function ScanLine() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute w-full h-[2px] bg-gradient-to-r from-transparent via-purple-500/60 to-transparent animate-scan-line" />
-    </div>
-  );
-}
-
-// Pulsing dot for live indicator
-function LiveDot() {
-  return (
-    <span className="relative flex h-3 w-3">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-400" />
-    </span>
-  );
-}
-
-// Fix flow animation: Watchdog -> Fixer -> Resolved
 function FixFlowAnimation({ incident, fixerEntry }: { incident: Incident; fixerEntry?: FixerEntry }) {
   const isFixed = fixerEntry?.status === 'success';
   const isFixing = fixerEntry?.status === 'started';
   const isFailed = fixerEntry?.status === 'failed';
 
+  const nodeStyle = (active: boolean, color: string) => ({
+    display: 'flex', alignItems: 'center', gap: 4,
+    padding: '2px 8px', borderRadius: 10, fontSize: 10, fontFamily: 'monospace' as const,
+    background: active ? `${color}15` : 'rgba(0,212,255,0.03)',
+    color: active ? color : 'rgba(0,212,255,0.3)',
+    border: `1px solid ${active ? `${color}40` : 'rgba(0,212,255,0.06)'}`,
+  });
+
+  const cyan = '#00d4ff';
+  const green = '#00ff88';
+  const red = '#ff3366';
+
   return (
-    <div className="flex items-center gap-2 text-xs">
-      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full transition-all duration-700 ${
-        isFixed ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-      }`}>
-        <span className={isFixed ? '' : 'animate-pulse'}>{isFixed ? '🛡️' : '⚠️'}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10 }}>
+      <div style={nodeStyle(true, red)}>
+        <span>{isFixed ? '✓' : '◆'}</span>
         <span>Watchdog</span>
       </div>
-
-      {/* Arrow with animation */}
-      <div className={`flex items-center ${isFixing ? 'animate-pulse' : ''}`}>
-        <div className={`w-8 h-[2px] transition-all duration-700 ${
-          isFixed ? 'bg-green-500' : isFixing ? 'bg-purple-500 animate-pulse' : 'bg-white/20'
-        }`} />
-        <div className={`w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent transition-all duration-700 ${
-          isFixed ? 'border-l-[6px] border-l-green-500' : isFixing ? 'border-l-[6px] border-l-purple-500' : 'border-l-[6px] border-l-white/20'
-        }`} />
-      </div>
-
-      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full transition-all duration-700 ${
-        isFixed ? 'bg-green-500/20 text-green-400' : isFixing ? 'bg-purple-500/20 text-purple-400 animate-pulse' : 'bg-white/5 text-white/30'
-      }`}>
-        <span>{isFixed ? '🔧' : isFixing ? '⚡' : '🔧'}</span>
+      <div style={{ width: 20, height: 1, background: isFixed ? green : isFixing ? cyan : 'rgba(0,212,255,0.1)' }} />
+      <div style={nodeStyle(isFixing || isFixed, isFixing ? cyan : green)}>
+        <span>{isFixing ? '◈' : '✓'}</span>
         <span>Fixer</span>
       </div>
-
-      <div className={`flex items-center ${
-        isFixed ? '' : ''
-      }`}>
-        <div className={`w-8 h-[2px] transition-all duration-700 ${
-          isFixed ? 'bg-green-500' : 'bg-white/10'
-        }`} />
-        <div className={`w-0 h-0 transition-all duration-700 ${
-          isFixed ? 'border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-green-500' : 'border-l-[6px] border-l-white/10 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent'
-        }`} />
-      </div>
-
-      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full transition-all duration-700 ${
-        isFixed ? 'bg-green-500/20 text-green-400' : isFailed ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-white/30'
-      }`}>
-        <span className={isFixed ? 'animate-bounce' : ''}>{isFixed ? '✅' : isFailed ? '❌' : '🔄'}</span>
+      <div style={{ width: 20, height: 1, background: isFixed ? green : 'rgba(0,212,255,0.1)' }} />
+      <div style={nodeStyle(isFixed || isFailed, isFixed ? green : isFailed ? red : 'rgba(0,212,255,0.3)')}>
+        <span>{isFixed ? '✓' : isFailed ? '◆' : '—'}</span>
         <span>{isFixed ? 'Resolved' : isFailed ? 'Failed' : 'Pending'}</span>
       </div>
-    </div>
-  );
-}
-
-// Radar sweep animation
-function RadarSweep() {
-  return (
-    <div className="relative w-24 h-24 mx-auto mb-4">
-      <div className="absolute inset-0 rounded-full border border-purple-500/20" />
-      <div className="absolute inset-3 rounded-full border border-purple-500/15" />
-      <div className="absolute inset-6 rounded-full border border-purple-500/10" />
-      <div className="absolute inset-0 rounded-full overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 w-1/2 h-[2px] origin-left animate-radar-sweep"
-          style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0.8), transparent)' }} />
-      </div>
-      <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500 animate-pulse" />
     </div>
   );
 }
@@ -197,11 +144,10 @@ export default function WatchdogPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-red-950/30 to-slate-900 flex items-center justify-center relative overflow-hidden">
-        <ParticleBackground />
-        <div className="relative z-10 text-center">
-          <RadarSweep />
-          <div className="text-white text-xl animate-pulse">Initializing Watchdog...</div>
+      <main style={{ minHeight: '100vh', background: '#060b18', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 32, color: '#00d4ff', fontFamily: 'monospace', animation: 'pulse 1.5s infinite' }}>◆</div>
+          <div style={{ color: '#00d4ff', fontSize: 12, fontFamily: 'monospace', letterSpacing: 2, marginTop: 12 }}>INITIALIZING WATCHDOG...</div>
         </div>
       </main>
     );
@@ -222,207 +168,217 @@ export default function WatchdogPage() {
     incidentsByType[i.type].push(i);
   });
 
-  // Map fixer log entries to incident types + workspaces
   const fixerMap: Record<string, FixerEntry> = {};
   fixerLog.forEach(f => {
     const key = `${f.fix_type}_${f.workspace}`;
-    fixerMap[key] = f; // Last entry wins (most recent)
+    fixerMap[key] = f;
   });
 
   const affectedWorkspaces = [...new Set(incidents.map(i => i.workspace))].filter(w => w !== 'SYSTEM');
   const totalFixes = fixerResults?.fixes_success || 0;
   const totalFailed = fixerResults?.fixes_failed || 0;
 
+  const cardStyle: React.CSSProperties = {
+    background: 'rgba(0,212,255,0.02)',
+    border: '1px solid rgba(0,212,255,0.08)',
+    borderRadius: 12,
+    padding: 16,
+    backdropFilter: 'blur(10px)',
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-red-950/20 to-slate-900 p-4 md:p-8 relative overflow-hidden">
-      <ParticleBackground />
-      <ScanLine />
+    <main style={{ minHeight: '100vh', background: '#060b18', color: '#e2e8f0', fontFamily: 'system-ui, sans-serif', position: 'relative', overflow: 'hidden' }}>
+      {/* Grid overlay */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        backgroundImage: 'linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
+      {/* Scan line overlay */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 1,
+        background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.008) 2px, rgba(0,212,255,0.008) 4px)',
+      }} />
 
-      {/* Animated background grid */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-5">
-        <div className="w-full h-full" style={{
-          backgroundImage: 'linear-gradient(rgba(168,85,247,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.3) 1px, transparent 1px)',
-          backgroundSize: '50px 50px'
-        }} />
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header with radar */}
-        <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
-          <div className="flex items-center gap-6">
-            <RadarSweep />
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl md:text-4xl font-bold text-white animate-fade-in">🛡️ Watchdog</h1>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
-                  <LiveDot />
-                  <span className="text-green-400 text-xs font-bold">LIVE</span>
-                </div>
+      <div style={{ position: 'relative', zIndex: 2, maxWidth: 1100, margin: '0 auto', padding: '24px 20px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h1 style={{ fontSize: 32, fontWeight: 800, color: '#00d4ff', letterSpacing: 4, textShadow: '0 0 10px rgba(0,212,255,0.5)', margin: 0 }}>
+                WATCHDOG
+              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 10, background: 'rgba(0,255,136,0.08)', border: '1px solid rgba(0,255,136,0.3)' }}>
+                <div style={{ width: 6, height: 6, background: '#00ff88', borderRadius: '50%', boxShadow: '0 0 8px #00ff88', animation: 'pulse 1.5s infinite' }} />
+                <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#00ff88', fontWeight: 700, letterSpacing: 1 }}>LIVE</span>
               </div>
-              <p className="text-purple-200/60 mt-1">Real-time anomaly detection across {scanData?.workspaces_scanned || 0} workspaces</p>
-              <p className="text-purple-300/30 text-xs mt-1">
-                Scan #{scanCount} • Last: {lastRefresh.toLocaleTimeString('en-IN', { timeZone: 'Asia/Calcutta' })} IST
-                {scanData?.scan_time && <span> • Data: {formatTime(scanData.scan_time)}</span>}
-              </p>
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(0,212,255,0.4)', fontFamily: 'monospace', letterSpacing: 1, marginTop: 4 }}>
+              ANOMALY DETECTION · {scanData?.workspaces_scanned || 0} WORKSPACES
+            </div>
+            <div style={{ fontSize: 9, color: 'rgba(0,212,255,0.25)', fontFamily: 'monospace', marginTop: 2 }}>
+              SCAN #{scanCount} · LAST: {lastRefresh.toLocaleTimeString('en-IN', { timeZone: 'Asia/Calcutta' })} IST
+              {scanData?.scan_time && <span> · DATA: {formatTime(scanData.scan_time)}</span>}
             </div>
           </div>
-          <Link href="/" className="text-purple-300 hover:text-white text-sm transition-colors">← Home</Link>
+          <Link href="/" style={{ fontSize: 11, color: 'rgba(0,212,255,0.4)', fontFamily: 'monospace', textDecoration: 'none', letterSpacing: 1 }}>
+            ⟐ HOME
+          </Link>
         </div>
 
         {/* Fixer Pipeline Status */}
-        <div className="mb-8 p-4 rounded-2xl border border-purple-500/20 bg-purple-500/5">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-white font-bold flex items-center gap-2">
-              <span className="animate-pulse">⚡</span> Fixer Pipeline
-            </h3>
-            <span className="text-xs text-purple-300/50">
-              {fixerResults ? `Last run: ${formatTime(fixerResults.fixer_time)}` : 'Awaiting first fix'}
+        <div style={{ ...cardStyle, marginBottom: 20, borderColor: 'rgba(0,212,255,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#00d4ff', letterSpacing: 2, fontFamily: 'monospace' }}>
+              ◈ FIXER PIPELINE
+            </div>
+            <span style={{ fontSize: 9, color: 'rgba(0,212,255,0.3)', fontFamily: 'monospace' }}>
+              {fixerResults ? `LAST RUN: ${formatTime(fixerResults.fixer_time)}` : 'AWAITING FIRST FIX'}
             </span>
           </div>
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-white/60 text-sm">Detected</span>
-              <span className="text-white font-mono">{incidents.length}</span>
-            </div>
-            <div className="text-purple-500">→</div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-purple-500" />
-              <span className="text-white/60 text-sm">Analyzed</span>
-              <span className="text-white font-mono">{fixerResults?.fixes_attempted || 0}</span>
-            </div>
-            <div className="text-purple-500">→</div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-white/60 text-sm">Fixed</span>
-              <span className="text-green-400 font-mono font-bold">{totalFixes}</span>
-            </div>
-            <div className="text-purple-500">→</div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
-              <span className="text-white/60 text-sm">Verified</span>
-              <span className="text-blue-400 font-mono">{totalFixes > 0 ? '✓' : '—'}</span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            {[
+              { dot: '#ff3366', label: 'Detected', value: incidents.length },
+              { dot: '#00d4ff', label: 'Analyzed', value: fixerResults?.fixes_attempted || 0 },
+              { dot: '#00ff88', label: 'Fixed', value: totalFixes, bold: true },
+              { dot: '#0066ff', label: 'Verified', value: totalFixes > 0 ? '✓' : '—' },
+            ].map((item, idx) => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {idx > 0 && <span style={{ color: 'rgba(0,212,255,0.2)', fontFamily: 'monospace' }}>→</span>}
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.dot, boxShadow: `0 0 6px ${item.dot}44` }} />
+                <span style={{ color: 'rgba(0,212,255,0.4)', fontSize: 11 }}>{item.label}</span>
+                <span style={{ color: item.bold ? '#00ff88' : '#e2e8f0', fontFamily: 'monospace', fontSize: 12, fontWeight: item.bold ? 700 : 400 }}>{item.value}</span>
+              </div>
+            ))}
           </div>
-
           {/* Progress bar */}
-          <div className="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-1000 ease-out"
-              style={{
-                width: incidents.length > 0 ? `${(totalFixes / incidents.length) * 100}%` : '0%',
-                background: 'linear-gradient(90deg, #a855f7, #22c55e)',
-                boxShadow: '0 0 10px rgba(168,85,247,0.5)',
-              }}
-            />
+          <div style={{ marginTop: 10, height: 3, borderRadius: 2, background: 'rgba(0,212,255,0.05)', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 2, transition: 'width 1s ease-out',
+              width: incidents.length > 0 ? `${(totalFixes / incidents.length) * 100}%` : '0%',
+              background: 'linear-gradient(90deg, #00d4ff, #00ff88)',
+              boxShadow: '0 0 10px rgba(0,212,255,0.4)',
+            }} />
           </div>
         </div>
 
-        {/* Status Cards with animated counters */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        {/* Stats row */}
+        <div style={{ display: 'flex', gap: 14, marginBottom: 20, flexWrap: 'wrap' }}>
           {[
-            { value: criticalCount, label: '🚨 Critical', color: '#ef4444', glow: '0 0 30px rgba(239,68,68,0.3)', bg: 'rgba(239,68,68,0.12)' },
-            { value: warningCount, label: '🟡 Warnings', color: '#f59e0b', glow: '0 0 30px rgba(245,158,11,0.3)', bg: 'rgba(245,158,11,0.12)' },
-            { value: infoCount, label: 'ℹ️ Info', color: '#3b82f6', glow: '0 0 30px rgba(59,130,246,0.3)', bg: 'rgba(59,130,246,0.12)' },
-            { value: totalFixes, label: '🔧 Fixed', color: '#22c55e', glow: '0 0 30px rgba(34,197,94,0.3)', bg: 'rgba(34,197,94,0.12)' },
-            { value: affectedWorkspaces.length, label: '👤 Affected', color: '#a855f7', glow: '0 0 30px rgba(168,85,247,0.3)', bg: 'rgba(168,85,247,0.12)' },
-          ].map((card, idx) => (
-            <GlowCard
-              key={card.label}
-              className="text-center !p-4 animate-slide-up"
-              glowColor={card.glow.replace('0 0 30px ', '').replace(')', '')}
-              style={{ animationDelay: `${idx * 0.1}s` } as React.CSSProperties}
-            >
-              <div className="text-3xl font-bold transition-all duration-500" style={{ color: card.color, textShadow: card.glow }}>
-                {card.value}
-              </div>
-              <div className="text-purple-300/60 text-sm">{card.label}</div>
-            </GlowCard>
+            { label: 'CRITICAL', value: criticalCount, color: '#ff3366' },
+            { label: 'WARNINGS', value: warningCount, color: '#ffaa00' },
+            { label: 'INFO', value: infoCount, color: '#00d4ff' },
+            { label: 'FIXED', value: totalFixes, color: '#00ff88' },
+            { label: 'AFFECTED', value: affectedWorkspaces.length, color: '#0066ff' },
+          ].map(s => (
+            <div key={s.label} style={{
+              background: 'rgba(0,212,255,0.03)',
+              border: '1px solid rgba(0,212,255,0.1)',
+              borderRadius: 10,
+              padding: '12px 18px',
+              flex: 1,
+              minWidth: 100,
+              backdropFilter: 'blur(10px)',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: 0, left: '-100%', width: '100%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(0,212,255,0.05), transparent)', animation: 'scanLine 4s infinite linear' }} />
+              <div style={{ fontSize: 9, color: 'rgba(0,212,255,0.5)', textTransform: 'uppercase', letterSpacing: 1.5, fontFamily: 'monospace', position: 'relative' }}>{s.label}</div>
+              <div style={{ fontSize: 24, fontWeight: 700, marginTop: 4, color: s.color, textShadow: `0 0 15px ${s.color}55`, fontFamily: 'monospace', position: 'relative' }}>{s.value}</div>
+            </div>
           ))}
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          {['all', 'critical', 'warning', 'info'].map(f => {
+        {/* Filter buttons */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+          {(['all', 'critical', 'warning', 'info'] as const).map(f => {
             const count = f === 'all' ? incidents.length : incidents.filter(i => i.severity === f).length;
+            const isActive = filter === f;
+            const sevColor = f === 'critical' ? '#ff3366' : f === 'warning' ? '#ffaa00' : f === 'info' ? '#00d4ff' : '#00d4ff';
             return (
               <button
                 key={f}
-                onClick={() => setFilter(f as any)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  filter === f
-                    ? f === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/40 shadow-lg shadow-red-500/10'
-                      : f === 'warning' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-lg shadow-amber-500/10'
-                      : f === 'info' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-lg shadow-blue-500/10'
-                      : 'bg-purple-500/20 text-purple-400 border border-purple-500/40 shadow-lg shadow-purple-500/10'
-                    : 'bg-white/5 text-purple-300/50 hover:text-white border border-transparent hover:border-white/10'
-                }`}
+                onClick={() => setFilter(f)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 6,
+                  fontSize: 10,
+                  cursor: 'pointer',
+                  fontFamily: 'monospace',
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                  transition: 'all 0.2s',
+                  background: isActive ? `${sevColor}15` : 'rgba(0,212,255,0.02)',
+                  border: `1px solid ${isActive ? `${sevColor}50` : 'rgba(0,212,255,0.08)'}`,
+                  color: isActive ? sevColor : 'rgba(0,212,255,0.4)',
+                  boxShadow: isActive ? `0 0 10px ${sevColor}22` : 'none',
+                }}
               >
-                {f === 'all' ? '🔍 All' : SEVERITY_CONFIG[f as keyof typeof SEVERITY_CONFIG]?.icon + ' ' + SEVERITY_CONFIG[f as keyof typeof SEVERITY_CONFIG]?.label}
-                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-white/10">{count}</span>
+                {f === 'all' ? '◈ ALL' : `${SEVERITY_CONFIG[f].icon} ${SEVERITY_CONFIG[f].label.toUpperCase()}`}
+                <span style={{ marginLeft: 6, padding: '1px 5px', borderRadius: 6, fontSize: 9, background: 'rgba(0,212,255,0.08)' }}>{count}</span>
               </button>
             );
           })}
         </div>
 
         {/* Incident Feed */}
-        <div className="space-y-3 mb-8">
+        <div style={{ marginBottom: 24 }}>
           {filtered.length === 0 ? (
-            <GlowCard glowColor="rgba(34,197,94,0.3)" className="text-center py-16">
-              <div className="text-6xl mb-4 animate-bounce">✅</div>
-              <h2 className="text-2xl font-bold text-white mb-2">All Clear</h2>
-              <p className="text-purple-300/60">No {filter !== 'all' ? filter : ''} incidents detected</p>
-              <p className="text-green-400/40 text-sm mt-4 animate-pulse">Monitoring 39 workspaces...</p>
-            </GlowCard>
+            <div style={{ ...cardStyle, textAlign: 'center', padding: 48 }}>
+              <div style={{ fontSize: 40, color: '#00ff88', fontFamily: 'monospace', marginBottom: 12 }}>✓</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#e2e8f0', marginBottom: 6 }}>All Clear</div>
+              <div style={{ fontSize: 12, color: 'rgba(0,212,255,0.4)', fontFamily: 'monospace' }}>No {filter !== 'all' ? filter : ''} incidents detected</div>
+              <div style={{ fontSize: 10, color: 'rgba(0,255,136,0.3)', fontFamily: 'monospace', marginTop: 12, animation: 'pulse 2s infinite' }}>
+                Monitoring {scanData?.workspaces_scanned || 0} workspaces...
+              </div>
+            </div>
           ) : (
             filtered.map((incident, idx) => {
               const sev = SEVERITY_CONFIG[incident.severity as keyof typeof SEVERITY_CONFIG] || SEVERITY_CONFIG.info;
-              const typeIcon = TYPE_ICONS[incident.type] || '⚠️';
+              const typeIcon = TYPE_ICONS[incident.type] || '◉';
               const fixKey = `${incident.type}_${incident.workspace}`;
               const fixerEntry = fixerMap[fixKey];
               return (
                 <div
                   key={`${incident.type}-${incident.workspace}-${idx}`}
-                  className="relative rounded-xl border p-4 transition-all duration-300 hover:scale-[1.005] animate-slide-in"
                   style={{
-                    background: sev.bg,
-                    borderColor: sev.border,
-                    borderLeftWidth: '4px',
+                    ...cardStyle,
+                    marginBottom: 8,
+                    borderLeftWidth: 3,
                     borderLeftColor: sev.color,
-                    animationDelay: `${idx * 0.05}s`,
-                    boxShadow: incident.severity === 'critical' ? sev.glow : 'none',
+                    borderColor: sev.border,
+                    background: sev.bg,
+                    boxShadow: incident.severity === 'critical' ? `0 0 20px ${sev.color}22` : 'none',
+                    transition: 'transform 0.2s',
                   }}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.003)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)'}
                 >
-                  <div className="flex flex-col md:flex-row md:items-start gap-4">
-                    <div className="text-3xl animate-float" style={{ animationDelay: `${idx * 0.2}s` }}>{typeIcon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="text-xs font-black tracking-wider px-2 py-0.5 rounded" style={{ color: sev.color, background: sev.bg }}>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ fontSize: 24, color: sev.color, fontFamily: 'monospace', lineHeight: 1 }}>{typeIcon}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1, padding: '1px 6px', borderRadius: 3, fontFamily: 'monospace', color: sev.color, background: sev.bg }}>
                           {sev.label.toUpperCase()}
                         </span>
-                        <span className="text-white/80 text-sm font-medium">{METRIC_NAMES[incident.type] || incident.type}</span>
+                        <span style={{ fontSize: 13, color: '#e2e8f0', fontWeight: 500 }}>{METRIC_NAMES[incident.type] || incident.type}</span>
                       </div>
-                      <p className="text-white text-sm mb-3">{incident.message}</p>
-                      <div className="flex items-center gap-4 text-xs flex-wrap">
+                      <p style={{ fontSize: 12, color: 'rgba(0,212,255,0.7)', margin: '4px 0 8px' }}>{incident.message}</p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 10, flexWrap: 'wrap', fontFamily: 'monospace' }}>
                         {incident.workspace !== 'SYSTEM' && (
-                          <span className="px-2 py-1 rounded-full bg-white/10 text-purple-300 font-mono text-xs">
-                            👤 {ws(incident.workspace)}
+                          <span style={{ padding: '2px 8px', borderRadius: 6, background: 'rgba(0,212,255,0.06)', color: 'rgba(0,212,255,0.6)', fontSize: 10 }}>
+                            ◉ {ws(incident.workspace)}
                           </span>
                         )}
                         {incident.metric !== undefined && (
-                          <span className="text-white/50">
-                            Value: <span className="text-white font-mono font-bold">{typeof incident.metric === 'number' ? incident.metric.toLocaleString() : incident.metric}</span>
-                            {incident.threshold !== undefined && (
-                              <> / Limit: <span className="font-mono">{incident.threshold}</span></>
-                            )}
+                          <span style={{ color: 'rgba(0,212,255,0.4)' }}>
+                            Value: <span style={{ color: '#e2e8f0', fontWeight: 700 }}>{typeof incident.metric === 'number' ? incident.metric.toLocaleString() : incident.metric}</span>
+                            {incident.threshold !== undefined && <> / Limit: <span>{incident.threshold}</span></>}
                           </span>
                         )}
                         {incident.timestamp && (
-                          <span className="text-white/30 ml-auto">{formatTime(incident.timestamp)}</span>
+                          <span style={{ color: 'rgba(0,212,255,0.25)', marginLeft: 'auto' }}>{formatTime(incident.timestamp)}</span>
                         )}
                       </div>
-                      {/* Fix flow animation */}
-                      <div className="mt-3 pt-3 border-t border-white/5">
+                      <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(0,212,255,0.06)' }}>
                         <FixFlowAnimation incident={incident} fixerEntry={fixerEntry} />
                       </div>
                     </div>
@@ -435,91 +391,100 @@ export default function WatchdogPage() {
 
         {/* Fixer Activity Log */}
         {fixerLog.length > 0 && (
-          <GlowCard className="mb-8" glowColor="rgba(34,197,94,0.2)">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <span className="animate-spin-slow">🔧</span> Fixer Activity Log
-            </h2>
-            <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+          <div style={{ ...cardStyle, marginBottom: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#00d4ff', letterSpacing: 2, fontFamily: 'monospace', marginBottom: 12 }}>
+              ◈ FIXER ACTIVITY LOG
+            </div>
+            <div style={{ maxHeight: 360, overflowY: 'auto', paddingRight: 8 }}>
               {[...fixerLog].reverse().slice(0, 20).map((fix, idx) => {
                 const sc = STATUS_CONFIG[fix.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.skipped;
                 return (
                   <div
                     key={`${fix.fix_type}-${fix.workspace}-${idx}`}
-                    className={`flex items-start gap-3 p-3 rounded-lg border transition-all animate-fade-in ${
-                      fix.status === 'success' ? 'bg-green-500/5 border-green-500/20' :
-                      fix.status === 'failed' ? 'bg-red-500/5 border-red-500/20' :
-                      fix.status === 'started' ? 'bg-purple-500/5 border-purple-500/20 animate-pulse' :
-                      'bg-white/5 border-white/10'
-                    }`}
-                    style={{ animationDelay: `${idx * 0.05}s` }}
+                    style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 8,
+                      padding: 8, borderRadius: 6, marginBottom: 4,
+                      background: fix.status === 'success' ? 'rgba(0,255,136,0.03)' :
+                                  fix.status === 'failed' ? 'rgba(255,51,102,0.03)' :
+                                  fix.status === 'started' ? 'rgba(0,212,255,0.05)' : 'rgba(0,212,255,0.02)',
+                      border: `1px solid ${fix.status === 'success' ? 'rgba(0,255,136,0.15)' :
+                                          fix.status === 'failed' ? 'rgba(255,51,102,0.15)' :
+                                          fix.status === 'started' ? 'rgba(0,212,255,0.2)' : 'rgba(0,212,255,0.05)'}`,
+                    }}
                   >
-                    <span className="text-lg mt-0.5">{sc.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs font-bold" style={{ color: sc.color }}>{sc.label.toUpperCase()}</span>
-                        <span className="text-white/60 text-xs">{fix.fix_type.replace(/_/g, ' ')}</span>
-                        <span className="text-purple-300/40 text-xs font-mono ml-auto">{ws(fix.workspace)}</span>
+                    <span style={{ fontSize: 14, color: sc.color, fontFamily: 'monospace' }}>{sc.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: sc.color, fontFamily: 'monospace', letterSpacing: 0.5 }}>{sc.label.toUpperCase()}</span>
+                        <span style={{ fontSize: 10, color: 'rgba(0,212,255,0.5)' }}>{fix.fix_type.replace(/_/g, ' ')}</span>
+                        <span style={{ fontSize: 9, color: 'rgba(0,212,255,0.25)', fontFamily: 'monospace', marginLeft: 'auto' }}>{ws(fix.workspace)}</span>
                       </div>
-                      <p className="text-white/70 text-xs">{fix.message}</p>
+                      <p style={{ fontSize: 10, color: 'rgba(0,212,255,0.5)', margin: 0 }}>{fix.message}</p>
                     </div>
-                    <span className="text-white/20 text-xs whitespace-nowrap">{formatTime(fix.timestamp)}</span>
+                    <span style={{ fontSize: 9, color: 'rgba(0,212,255,0.2)', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{formatTime(fix.timestamp)}</span>
                   </div>
                 );
               })}
             </div>
-          </GlowCard>
+          </div>
         )}
 
-        {/* 14 Metrics Grid with status indicators */}
-        <GlowCard className="mb-8" glowColor="rgba(168,85,247,0.2)">
-          <h2 className="text-xl font-bold text-white mb-4">📊 14 Monitored Metrics</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {Object.entries(METRIC_NAMES).map(([type, name], idx) => {
+        {/* 14 Metrics Grid */}
+        <div style={{ ...cardStyle, marginBottom: 24 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#00d4ff', letterSpacing: 2, fontFamily: 'monospace', marginBottom: 12 }}>
+            ◉ 14 MONITORED METRICS
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
+            {Object.entries(METRIC_NAMES).map(([type, name]) => {
               const count = incidentsByType[type]?.length || 0;
               const sev = incidentsByType[type]?.[0]?.severity || 'ok';
               const isActive = count > 0;
+              const sevConfig = SEVERITY_CONFIG[sev as keyof typeof SEVERITY_CONFIG];
               return (
                 <div
                   key={type}
-                  className={`p-3 rounded-lg border transition-all duration-500 animate-slide-up ${
-                    isActive
-                      ? sev === 'critical' ? 'bg-red-500/10 border-red-500/30 shadow-lg shadow-red-500/5'
-                        : sev === 'warning' ? 'bg-amber-500/10 border-amber-500/30 shadow-lg shadow-amber-500/5'
-                        : 'bg-blue-500/10 border-blue-500/30'
-                      : 'bg-white/3 border-white/5 hover:border-white/10'
-                  }`}
-                  style={{ animationDelay: `${idx * 0.03}s` }}
+                  style={{
+                    padding: 8, borderRadius: 6,
+                    background: isActive ? (sevConfig?.bg || 'rgba(0,212,255,0.05)') : 'rgba(0,212,255,0.01)',
+                    border: `1px solid ${isActive ? (sevConfig?.border || 'rgba(0,212,255,0.15)') : 'rgba(0,212,255,0.04)'}`,
+                    transition: 'all 0.3s',
+                  }}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className={`text-lg ${isActive && sev === 'critical' ? 'animate-pulse' : ''}`}>{TYPE_ICONS[type]}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-xs font-medium truncate ${isActive ? 'text-white' : 'text-white/30'}`}>{name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 14, color: isActive && sev === 'critical' ? '#ff3366' : '#00d4ff', fontFamily: 'monospace' }}>{TYPE_ICONS[type]}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 10, fontWeight: 500, color: isActive ? '#e2e8f0' : 'rgba(0,212,255,0.25)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
                       {isActive ? (
-                        <div className="text-xs mt-0.5 font-bold" style={{ color: SEVERITY_CONFIG[sev as keyof typeof SEVERITY_CONFIG]?.color }}>
-                          {count} alert{count > 1 ? 's' : ''}
+                        <div style={{ fontSize: 9, fontWeight: 700, color: sevConfig?.color || '#00d4ff', fontFamily: 'monospace' }}>
+                          {count} ALERT{count > 1 ? 'S' : ''}
                         </div>
                       ) : (
-                        <div className="text-xs text-green-400/30 mt-0.5">✓ Clear</div>
+                        <div style={{ fontSize: 9, color: 'rgba(0,255,136,0.3)', fontFamily: 'monospace' }}>✓ CLEAR</div>
                       )}
                     </div>
                     {isActive && (
-                      <div className={`w-2 h-2 rounded-full animate-pulse ${
-                        sev === 'critical' ? 'bg-red-500' : sev === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
-                      }`} />
+                      <div style={{
+                        width: 6, height: 6, borderRadius: '50%',
+                        background: sevConfig?.color || '#00d4ff',
+                        boxShadow: `0 0 6px ${sevConfig?.color || '#00d4ff'}44`,
+                        animation: sev === 'critical' ? 'pulse 1s infinite' : 'none',
+                      }} />
                     )}
                   </div>
                 </div>
               );
             })}
           </div>
-        </GlowCard>
+        </div>
 
         {/* Affected Workspaces */}
         {affectedWorkspaces.length > 0 && (
-          <GlowCard className="mb-8" glowColor="rgba(168,85,247,0.2)">
-            <h2 className="text-xl font-bold text-white mb-4">👤 Affected Workspaces</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-              {affectedWorkspaces.map((wk, idx) => {
+          <div style={{ ...cardStyle, marginBottom: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#00d4ff', letterSpacing: 2, fontFamily: 'monospace', marginBottom: 12 }}>
+              ◉ AFFECTED WORKSPACES
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 6 }}>
+              {affectedWorkspaces.map(wk => {
                 const wsIncidents = incidents.filter(i => i.workspace === wk);
                 const hasCritical = wsIncidents.some(i => i.severity === 'critical');
                 const fixKey = `${wsIncidents[0]?.type}_${wk}`;
@@ -527,91 +492,40 @@ export default function WatchdogPage() {
                 return (
                   <div
                     key={wk}
-                    className={`p-3 rounded-lg border text-center transition-all duration-500 animate-slide-up ${
-                      isFixed ? 'bg-green-500/10 border-green-500/20' :
-                      hasCritical ? 'bg-red-500/10 border-red-500/30' : 'bg-amber-500/10 border-amber-500/30'
-                    }`}
-                    style={{ animationDelay: `${idx * 0.03}s` }}
+                    style={{
+                      padding: 8, borderRadius: 6, textAlign: 'center',
+                      background: isFixed ? 'rgba(0,255,136,0.05)' : hasCritical ? 'rgba(255,51,102,0.05)' : 'rgba(255,170,0,0.05)',
+                      border: `1px solid ${isFixed ? 'rgba(0,255,136,0.15)' : hasCritical ? 'rgba(255,51,102,0.2)' : 'rgba(255,170,0,0.15)'}`,
+                    }}
                   >
-                    <div className="text-white text-sm font-medium">{ws(wk)}</div>
-                    <div className={`text-xs mt-1 ${isFixed ? 'text-green-400' : hasCritical ? 'text-red-400' : 'text-amber-400'}`}>
-                      {isFixed ? '✅ Fixed' : `${wsIncidents.length} issue${wsIncidents.length > 1 ? 's' : ''}`}
+                    <div style={{ fontSize: 12, color: '#e2e8f0', fontWeight: 500 }}>{ws(wk)}</div>
+                    <div style={{ fontSize: 9, marginTop: 2, fontFamily: 'monospace', color: isFixed ? '#00ff88' : hasCritical ? '#ff3366' : '#ffaa00' }}>
+                      {isFixed ? '✓ FIXED' : `${wsIncidents.length} ISSUE${wsIncidents.length > 1 ? 'S' : ''}`}
                     </div>
                   </div>
                 );
               })}
             </div>
-          </GlowCard>
+          </div>
         )}
 
-        <p className="text-purple-300/20 text-xs text-center mt-8">
-          🛡️ Livio Usage Guardian · Zero-token Python · Watchdog → Fixer → Verified · 14 anomaly types
-        </p>
+        <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 9, color: 'rgba(0,212,255,0.2)', fontFamily: 'monospace', letterSpacing: 1 }}>
+          ◆ LIVIO USAGE GUARDIAN · WATCHDOG → FIXER → VERIFIED · 14 ANOMALY TYPES
+        </div>
       </div>
 
-      {/* Global animations */}
       <style jsx global>{`
-        @keyframes scan-line {
-          0% { top: -2px; }
-          100% { top: 100%; }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(1.3); }
         }
-        .animate-scan-line {
-          animation: scan-line 4s linear infinite;
+        @keyframes scanLine {
+          0% { left: -100%; }
+          100% { left: 200%; }
         }
-
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out forwards;
-        }
-
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.4s ease-out forwards;
-        }
-
-        @keyframes slide-in {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out forwards;
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-4px); }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-
-        @keyframes radar-sweep {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-radar-sweep {
-          animation: radar-sweep 3s linear infinite;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        ::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.3); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,0.5); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,212,255,0.02); }
+        ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
       `}</style>
     </main>
   );

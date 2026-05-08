@@ -1,276 +1,479 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getBadge, getProgressPercent } from '@/lib/badges';
-import GlowCard from '@/components/GlowCard';
-import AnimatedCounter from '@/components/AnimatedCounter';
-import ProgressBar from '@/components/ProgressBar';
-import ParticleBackground from '@/components/ParticleBackground';
+import { useAuth } from '@/components/AuthContext';
 
-interface Employee {
+/* ── Types ── */
+interface EmployeeData {
   name: string;
   agentId: string;
-  weeklyHours: number;
-  estimatedHours: number;
+  tokensIn: number;
+  tokensOut: number;
   totalTokens: number;
+  weeklyTokensIn: number;
+  weeklyTokensOut: number;
+  weeklyTokens: number;
+  estimatedHours: number;
+  weeklyHours: number;
   totalCost: number;
   weeklyCost: number;
   streak: number;
-  rank: number;
   lastActive: string;
   sessionCount: number;
+  rank: number;
 }
 
+interface KanbanProject {
+  id: string;
+  workspace: string;
+  employee_name: string;
+  department: string;
+  title: string;
+  column: string;
+  status: string;
+  current_phase: number;
+  total_phases: number;
+  phases: { name: string; status: string }[];
+  cost_usd: number;
+  tokens_used: number;
+  updated_at: string;
+  created_at: string;
+}
+
+/* ── Helpers ── */
+function formatCurrency(v: number) {
+  return '$' + v.toFixed(2);
+}
+function formatTokens(v: number) {
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1) + 'M';
+  if (v >= 1_000) return (v / 1_000).toFixed(0) + 'k';
+  return v.toString();
+}
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+function columnLabel(col: string) {
+  const map: Record<string, string> = { backlog: 'Backlog', todo: 'To Do', in_progress: 'In Progress', review: 'Review', done: 'Done' };
+  return map[col] || col;
+}
+function columnColor(col: string) {
+  const map: Record<string, string> = { backlog: '#ffaa00', todo: '#00d4ff', in_progress: '#00d4ff', review: '#ffaa00', done: '#00ff88' };
+  return map[col] || '#00d4ff';
+}
+
+/* ── Component ── */
 export default function MePage() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [selected, setSelected] = useState<Employee | null>(null);
+  const { user, isAdmin } = useAuth();
+  const [emp, setEmp] = useState<EmployeeData | null>(null);
+  const [projects, setProjects] = useState<KanbanProject[]>([]);
+  const [allEmployees, setAllEmployees] = useState<EmployeeData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showRocket, setShowRocket] = useState(false);
-  const [rocketComplete, setRocketComplete] = useState(false);
-  const rocketRef = useRef<HTMLDivElement>(null);
+  const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadData = () => {
-      fetch('/openclaw-dashboard/data/usage.json')
-        .then(r => r.json())
-        .then(data => {
-          setEmployees(data.employees);
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    };
-    loadData();
-    const interval = setInterval(loadData, 60000); // Refresh every 60s
-    return () => clearInterval(interval);
-  }, []);
+    if (!user) return;
+    Promise.all([
+      fetch('/openclaw-dashboard/data/usage.json').then(r => r.json()),
+      fetch('/openclaw-dashboard/data/kanban.json').then(r => r.json()),
+    ]).then(([usageData, kanbanData]) => {
+      const employees: EmployeeData[] = usageData.employees || [];
+      setAllEmployees(employees);
+      const me = employees.find((e: EmployeeData) => e.agentId === user.workspace);
+      setEmp(me || null);
+      const myProjects = (kanbanData.projects || []).filter(
+        (p: KanbanProject) => p.workspace === user.workspace
+      );
+      setProjects(myProjects);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [user]);
 
-  // Trigger rocket animation when user has 10+ hours
-  useEffect(() => {
-    if (selected && selected.weeklyHours >= 10 && !rocketComplete) {
-      setShowRocket(true);
-      const timer = setTimeout(() => {
-        setShowRocket(false);
-        setRocketComplete(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [selected, rocketComplete]);
+  if (!user) return null; // AuthContext handles redirect
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center relative">
-        <ParticleBackground />
-        <div className="text-white text-xl animate-pulse relative z-10">Loading...</div>
+      <main className="min-h-screen flex items-center justify-center" style={{ background: '#060b18' }}>
+        <div style={{ color: '#00d4ff', fontFamily: 'monospace', fontSize: 14, letterSpacing: 2 }}>LOADING...</div>
       </main>
     );
   }
 
-  if (!selected) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 relative">
-        <ParticleBackground />
-        <div className="max-w-2xl mx-auto relative z-10">
-          <h1 className="text-3xl font-bold text-white mb-2">Who are you?</h1>
-          <p className="text-purple-200 mb-8">Select your name to see your dashboard</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {employees.map(emp => (
-              <GlowCard 
-                key={emp.agentId}
-                className="!p-4 cursor-pointer text-left"
-                onClick={() => setSelected(emp)}
-                glowColor="rgba(168, 85, 247, 0.2)"
-              >
-                <div className="text-white font-semibold">{emp.name}</div>
-                <div className="text-purple-300 text-sm">{emp.estimatedHours} hrs total</div>
-              </GlowCard>
-            ))}
-          </div>
-          <Link href="/" className="inline-block mt-8 text-purple-300 hover:text-white">← Back</Link>
-        </div>
-      </main>
-    );
-  }
+  const weeklyGoal = 10;
+  const weeklyPct = emp ? Math.min(Math.round((emp.weeklyHours / weeklyGoal) * 100), 100) : 0;
+  const loginDate = new Date(user.loginTime);
 
-  const badge = getBadge(selected.weeklyHours || selected.estimatedHours);
-  const weeklyProgress = Math.min(Math.round(((selected.weeklyHours || 0) / 10) * 100), 100);
-  const isLaunched = selected.weeklyHours >= 10;
+  /* Company-wide stats for admin */
+  const companyStats = isAdmin && allEmployees.length > 0 ? {
+    totalEmployees: allEmployees.length,
+    totalCost: allEmployees.reduce((s, e) => s + e.totalCost, 0),
+    totalTokens: allEmployees.reduce((s, e) => s + e.totalTokens, 0),
+    activeThisWeek: allEmployees.filter(e => e.weeklyHours > 0).length,
+  } : null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8 relative overflow-hidden">
-      <ParticleBackground />
-      
-      {/* Rocket Animation Overlay */}
-      {showRocket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-          <div className="rocket-animation">
-            <span className="text-8xl">🚀</span>
+    <main className="min-h-screen relative" style={{ background: '#060b18' }}>
+      {/* Grid overlay */}
+      <div style={{
+        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        backgroundImage: 'linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '40px 40px',
+      }} />
+      {/* Scan line */}
+      <div style={{
+        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.008) 2px, rgba(0,212,255,0.008) 4px)',
+      }} />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 style={{
+            color: '#00d4ff', fontSize: 24, fontWeight: 700, fontFamily: 'monospace', letterSpacing: 3,
+            textShadow: '0 0 20px rgba(0,212,255,0.4), 0 0 40px rgba(0,212,255,0.2)',
+          }}>
+            MY DASHBOARD
+          </h1>
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Link href="/openclaw-dashboard/hr" style={{
+                padding: '4px 12px', borderRadius: 4, fontSize: 11, fontFamily: 'monospace', letterSpacing: 1,
+                border: '1px solid rgba(255,51,102,0.4)', color: '#ff3366', background: 'rgba(255,51,102,0.06)',
+                textDecoration: 'none',
+              }}>
+                ADMIN PANEL
+              </Link>
+            )}
+            <Link href="/openclaw-dashboard" style={{ color: 'rgba(0,212,255,0.5)', fontFamily: 'monospace', fontSize: 12, textDecoration: 'none' }}>
+              ← HOME
+            </Link>
           </div>
-          <div className="absolute inset-0 bg-purple-500/20 animate-pulse" />
-        </div>
-      )}
-
-      <div className="max-w-lg mx-auto relative z-10">
-        <div className="flex gap-4 mb-6">
-          <button onClick={() => { setSelected(null); setRocketComplete(false); }} className="text-purple-300 hover:text-white">← Pick someone else</button>
-          <Link href="/" className="text-purple-300 hover:text-white">← Home</Link>
         </div>
 
-        {/* Profile Card */}
-        <div ref={rocketRef} className="relative">
-          <GlowCard 
-            className="text-center mb-6"
-            glowColor={isLaunched ? 'rgba(168, 85, 247, 0.5)' : 'rgba(168, 85, 247, 0.3)'}
-          >
-            {isLaunched && (
-              <div className="absolute -top-2 -right-2 text-3xl animate-bounce">
-                🚀
+        {/* Welcome Banner */}
+        <div style={{
+          background: 'rgba(0,212,255,0.02)', border: '1px solid rgba(0,212,255,0.08)',
+          borderRadius: 8, padding: '20px 24px', marginBottom: 20,
+        }}>
+          <div style={{ color: '#00d4ff', fontSize: 22, fontWeight: 600 }}>
+            Welcome back, {user.name}
+          </div>
+          <div className="flex items-center gap-4 mt-2 flex-wrap">
+            <span style={{ fontFamily: 'monospace', fontSize: 13, color: 'rgba(0,212,255,0.6)' }}>
+              Workspace: {user.workspace}
+            </span>
+            <span style={{
+              padding: '2px 10px', borderRadius: 4, fontSize: 11, fontFamily: 'monospace', letterSpacing: 1,
+              border: `1px solid ${isAdmin ? 'rgba(255,51,102,0.4)' : 'rgba(0,255,136,0.3)'}`,
+              color: isAdmin ? '#ff3366' : '#00ff88',
+              background: isAdmin ? 'rgba(255,51,102,0.06)' : 'rgba(0,255,136,0.04)',
+            }}>
+              {isAdmin ? 'ADMIN' : 'EMPLOYEE'}
+            </span>
+            <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'rgba(0,212,255,0.4)' }}>
+              Last login: {loginDate.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: 'My Hours', value: emp ? `${emp.weeklyHours.toFixed(1)} / ${emp.estimatedHours.toFixed(1)}` : '—/—', sub: 'weekly / total', color: '#00d4ff' },
+            { label: 'My Tokens', value: emp ? `${formatTokens(emp.weeklyTokens)} / ${formatTokens(emp.totalTokens)}` : '—/—', sub: 'weekly / total', color: '#00ff88' },
+            { label: 'My Cost', value: emp ? `${formatCurrency(emp.weeklyCost)} / ${formatCurrency(emp.totalCost)}` : '—/—', sub: 'weekly / total', color: '#ffaa00' },
+            { label: 'My Rank', value: emp ? `#${emp.rank}` : '—', sub: `of ${allEmployees.length}`, color: '#ff3366' },
+          ].map(s => (
+            <div key={s.label} style={{
+              background: 'rgba(0,212,255,0.02)', border: `1px solid ${s.color}15`,
+              borderRadius: 8, padding: '16px',
+            }}>
+              <div style={{ color: 'rgba(0,212,255,0.5)', fontSize: 11, fontFamily: 'monospace', letterSpacing: 1, marginBottom: 6 }}>
+                {s.label.toUpperCase()}
               </div>
-            )}
-            <div className="text-6xl mb-4">{badge.icon}</div>
-            <h1 className="text-3xl font-bold text-white mb-1">{selected.name}</h1>
-            <div className="text-purple-200 text-lg">{badge.name}</div>
-            {selected.streak > 0 && (
-              <div className="mt-2 text-orange-400 font-semibold">🔥 {selected.streak}-week streak</div>
-            )}
-          </GlowCard>
-
-          {/* LAUNCHED Banner */}
-          {isLaunched && rocketComplete && (
-            <div className="launched-banner mb-6 text-center py-4 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 animate-pulse">
-              <span className="text-2xl font-bold text-white drop-shadow-lg">
-                🚀 LAUNCHED! 🚀
-              </span>
+              <div style={{ color: s.color, fontSize: 20, fontWeight: 700, fontFamily: 'monospace' }}>
+                {s.value}
+              </div>
+              <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace', marginTop: 2 }}>
+                {s.sub}
+              </div>
             </div>
-          )}
+          ))}
         </div>
 
         {/* Weekly Progress */}
-        <GlowCard className="mb-6" glowColor={weeklyProgress >= 100 ? 'rgba(168, 85, 247, 0.4)' : 'rgba(59, 130, 246, 0.3)'}>
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-white font-semibold">This Week</span>
-            <span className="text-white">{selected.weeklyHours} / 10 hrs</span>
+        {emp && (
+          <div style={{
+            background: 'rgba(0,212,255,0.02)', border: '1px solid rgba(0,212,255,0.08)',
+            borderRadius: 8, padding: '16px 20px', marginBottom: 20,
+          }}>
+            <div className="flex justify-between items-center mb-2">
+              <span style={{ color: 'rgba(0,212,255,0.7)', fontSize: 12, fontFamily: 'monospace', letterSpacing: 1 }}>
+                WEEKLY GOAL
+              </span>
+              <span style={{ color: weeklyPct >= 100 ? '#00ff88' : '#00d4ff', fontFamily: 'monospace', fontSize: 13 }}>
+                {emp.weeklyHours.toFixed(1)} / {weeklyGoal} hrs
+              </span>
+            </div>
+            <div style={{ background: 'rgba(0,212,255,0.06)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
+              <div style={{
+                width: `${weeklyPct}%`, height: '100%', borderRadius: 4,
+                background: weeklyPct >= 100 ? 'linear-gradient(90deg, #00ff88, #00d4ff)' : 'linear-gradient(90deg, #00d4ff, rgba(0,212,255,0.4))',
+                transition: 'width 0.5s ease',
+              }} />
+            </div>
+            {emp.streak > 0 && (
+              <div style={{ color: '#ffaa00', fontSize: 12, fontFamily: 'monospace', marginTop: 6 }}>
+                🔥 {emp.streak}-week streak
+              </div>
+            )}
           </div>
-          <ProgressBar 
-            percent={weeklyProgress} 
-            color={weeklyProgress >= 100 ? '#a855f7' : weeklyProgress >= 70 ? '#3b82f6' : weeklyProgress >= 50 ? '#22c55e' : '#eab308'}
-            className="h-4"
-          />
-          <div className="text-purple-300 text-sm mt-2">{weeklyProgress}% to 10-hour weekly goal</div>
-          {isLaunched && (
-            <div className="mt-3 text-green-400 font-bold text-lg">✅ 10-hour goal reached!</div>
-          )}
-        </GlowCard>
+        )}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <GlowCard className="text-center !p-4" glowColor="rgba(251, 191, 36, 0.3)">
-            <div className="text-2xl font-bold text-white">#{selected.rank}</div>
-            <div className="text-purple-300 text-sm">Rank</div>
-          </GlowCard>
-          <GlowCard className="text-center !p-4" glowColor="rgba(34, 197, 94, 0.3)">
-            <div className="text-2xl font-bold text-white">
-              <AnimatedCounter target={selected.estimatedHours} decimals={1} />
-            </div>
-            <div className="text-purple-300 text-sm">Total Hours</div>
-          </GlowCard>
-          <GlowCard className="text-center !p-4" glowColor="rgba(99, 102, 241, 0.3)">
-            <div className="text-2xl font-bold text-white">
-              <AnimatedCounter target={selected.totalTokens / 1000} decimals={0} />k
-            </div>
-            <div className="text-purple-300 text-sm">Total Tokens</div>
-          </GlowCard>
-          <GlowCard className="text-center !p-4" glowColor="rgba(251, 191, 36, 0.3)">
-            <div className="text-2xl font-bold text-white">
-              $<AnimatedCounter target={selected.totalCost} decimals={2} />
-            </div>
-            <div className="text-purple-300 text-sm">Total Cost</div>
-          </GlowCard>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* My Projects */}
+          <div style={{
+            background: 'rgba(0,212,255,0.02)', border: '1px solid rgba(0,212,255,0.08)',
+            borderRadius: 8, padding: '20px',
+          }}>
+            <h2 style={{ color: '#00d4ff', fontSize: 14, fontFamily: 'monospace', letterSpacing: 2, marginBottom: 16 }}>
+              MY PROJECTS ({projects.length})
+            </h2>
+            {projects.length === 0 ? (
+              <div style={{ color: 'rgba(0,212,255,0.3)', fontFamily: 'monospace', fontSize: 12 }}>
+                No projects yet
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
+                {projects.map(p => {
+                  const isExpanded = expandedProject === p.id;
+                  const pct = p.total_phases > 0 ? Math.round((p.current_phase / p.total_phases) * 100) : 0;
+                  return (
+                    <div key={p.id} onClick={() => setExpandedProject(isExpanded ? null : p.id)}
+                      style={{
+                        background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.06)',
+                        borderRadius: 6, padding: '12px 14px', cursor: 'pointer',
+                      }}>
+                      <div className="flex justify-between items-start">
+                        <div style={{ flex: 1 }}>
+                          <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{p.title}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span style={{
+                              fontSize: 10, fontFamily: 'monospace', padding: '1px 6px', borderRadius: 3,
+                              border: `1px solid ${columnColor(p.column)}40`, color: columnColor(p.column),
+                            }}>
+                              {columnLabel(p.column).toUpperCase()}
+                            </span>
+                            <span style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>
+                              {timeAgo(p.updated_at)}
+                            </span>
+                          </div>
+                        </div>
+                        <div style={{ color: 'rgba(0,212,255,0.5)', fontSize: 11, fontFamily: 'monospace' }}>
+                          {pct}%
+                        </div>
+                      </div>
+                      {/* Progress bar */}
+                      <div style={{ background: 'rgba(0,212,255,0.06)', borderRadius: 3, height: 4, marginTop: 8 }}>
+                        <div style={{
+                          width: `${pct}%`, height: '100%', borderRadius: 3,
+                          background: pct === 100 ? '#00ff88' : '#00d4ff',
+                        }} />
+                      </div>
+                      {isExpanded && (
+                        <div style={{ marginTop: 10, borderTop: '1px solid rgba(0,212,255,0.06)', paddingTop: 10 }}>
+                          {p.phases?.map((ph, i) => (
+                            <div key={i} className="flex items-center gap-2" style={{ marginBottom: 4 }}>
+                              <span style={{
+                                color: ph.status === 'done' ? '#00ff88' : ph.status === 'in_progress' ? '#ffaa00' : 'rgba(0,212,255,0.3)',
+                                fontSize: 10,
+                              }}>
+                                {ph.status === 'done' ? '✓' : ph.status === 'in_progress' ? '◉' : '○'}
+                              </span>
+                              <span style={{
+                                color: ph.status === 'done' ? 'rgba(0,212,255,0.6)' : 'rgba(0,212,255,0.3)',
+                                fontSize: 11, fontFamily: 'monospace',
+                              }}>
+                                {ph.name}
+                              </span>
+                            </div>
+                          ))}
+                          <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace', marginTop: 6 }}>
+                            Cost: {formatCurrency(p.cost_usd)} · Tokens: {formatTokens(p.tokens_used)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* My Usage */}
+          <div style={{
+            background: 'rgba(0,212,255,0.02)', border: '1px solid rgba(0,212,255,0.08)',
+            borderRadius: 8, padding: '20px',
+          }}>
+            <h2 style={{ color: '#00d4ff', fontSize: 14, fontFamily: 'monospace', letterSpacing: 2, marginBottom: 16 }}>
+              MY USAGE
+            </h2>
+            {emp ? (
+              <div>
+                {/* Token breakdown */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ color: 'rgba(0,212,255,0.5)', fontSize: 11, fontFamily: 'monospace', marginBottom: 8 }}>TOKEN BREAKDOWN</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 10 }}>
+                      <div style={{ color: '#00d4ff', fontSize: 16, fontFamily: 'monospace', fontWeight: 700 }}>
+                        {formatTokens(emp.weeklyTokensIn)}
+                      </div>
+                      <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Weekly In</div>
+                    </div>
+                    <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 10 }}>
+                      <div style={{ color: '#00ff88', fontSize: 16, fontFamily: 'monospace', fontWeight: 700 }}>
+                        {formatTokens(emp.weeklyTokensOut)}
+                      </div>
+                      <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Weekly Out</div>
+                    </div>
+                    <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 10 }}>
+                      <div style={{ color: '#00d4ff', fontSize: 16, fontFamily: 'monospace', fontWeight: 700 }}>
+                        {formatTokens(emp.tokensIn)}
+                      </div>
+                      <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Total In</div>
+                    </div>
+                    <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 10 }}>
+                      <div style={{ color: '#00ff88', fontSize: 16, fontFamily: 'monospace', fontWeight: 700 }}>
+                        {formatTokens(emp.tokensOut)}
+                      </div>
+                      <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Total Out</div>
+                    </div>
+                  </div>
+                </div>
+                {/* Cost comparison */}
+                <div>
+                  <div style={{ color: 'rgba(0,212,255,0.5)', fontSize: 11, fontFamily: 'monospace', marginBottom: 8 }}>COST COMPARISON</div>
+                  <div className="flex items-center gap-4">
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: '#ffaa00', fontSize: 18, fontFamily: 'monospace', fontWeight: 700 }}>
+                        {formatCurrency(emp.weeklyCost)}
+                      </div>
+                      <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>This Week</div>
+                    </div>
+                    <div style={{ color: 'rgba(0,212,255,0.15)', fontSize: 20 }}>→</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: '#ff3366', fontSize: 18, fontFamily: 'monospace', fontWeight: 700 }}>
+                        {formatCurrency(emp.totalCost)}
+                      </div>
+                      <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>All Time</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ color: 'rgba(0,212,255,0.3)', fontFamily: 'monospace', fontSize: 12 }}>
+                No usage data found for your workspace
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Badge Progress */}
-        <GlowCard className="mb-6" glowColor="rgba(168, 85, 247, 0.2)">
-          <h3 className="text-white font-semibold mb-4">Badge Progress</h3>
-          <div className="space-y-3">
-            {[
-              { icon: '🔴', name: 'Beginner', hrs: 0 },
-              { icon: '🟡', name: 'Learner', hrs: 2 },
-              { icon: '🟢', name: 'Explorer', hrs: 5 },
-              { icon: '🔵', name: 'Achiever', hrs: 8 },
-              { icon: '🟣', name: 'Master', hrs: 10 },
-              { icon: '🏆', name: 'Champion', hrs: 15 },
-            ].map((b, i) => {
-              const hrs = selected.weeklyHours || selected.estimatedHours;
-              const achieved = hrs >= b.hrs;
-              return (
-                <div 
-                  key={b.name} 
-                  className={`flex items-center gap-3 p-2 rounded-lg transition-all duration-300 ${achieved ? 'bg-white/5' : ''}`}
-                  style={achieved ? { boxShadow: '0 0 10px rgba(168, 85, 247, 0.2)' } : {}}
-                >
-                  <span className="text-xl">{b.icon}</span>
-                  <span className={`flex-1 ${achieved ? 'text-white' : 'text-white/30'}`}>
-                    {b.name} ({b.hrs}+ hrs)
-                  </span>
-                  {achieved ? (
-                    <span className="text-green-400 animate-pulse">✓</span>
-                  ) : (
-                    <span className="text-white/20">—</span>
-                  )}
+        {/* Activity + Quick Actions row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* My Activity */}
+          <div style={{
+            background: 'rgba(0,212,255,0.02)', border: '1px solid rgba(0,212,255,0.08)',
+            borderRadius: 8, padding: '20px',
+          }}>
+            <h2 style={{ color: '#00d4ff', fontSize: 14, fontFamily: 'monospace', letterSpacing: 2, marginBottom: 16 }}>
+              MY ACTIVITY
+            </h2>
+            {emp ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 12 }}>
+                  <div style={{ color: '#00d4ff', fontSize: 20, fontFamily: 'monospace', fontWeight: 700 }}>
+                    {emp.sessionCount}
+                  </div>
+                  <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Sessions</div>
                 </div>
-              );
-            })}
+                <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 12 }}>
+                  <div style={{ color: '#ffaa00', fontSize: 14, fontFamily: 'monospace', fontWeight: 700 }}>
+                    {emp.streak > 0 ? `${emp.streak} weeks` : '—'}
+                  </div>
+                  <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Streak</div>
+                </div>
+                <div style={{ background: 'rgba(0,212,255,0.03)', borderRadius: 6, padding: 12, gridColumn: 'span 2' }}>
+                  <div style={{ color: '#00ff88', fontSize: 13, fontFamily: 'monospace' }}>
+                    {emp.lastActive ? timeAgo(emp.lastActive) : 'Unknown'}
+                  </div>
+                  <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace' }}>Last Active</div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ color: 'rgba(0,212,255,0.3)', fontFamily: 'monospace', fontSize: 12 }}>No activity data</div>
+            )}
           </div>
-        </GlowCard>
 
-        {/* Session Stats */}
-        <GlowCard className="!p-4" glowColor="rgba(59, 130, 246, 0.2)">
-          <div className="flex justify-between items-center text-sm">
-            <div>
-              <span className="text-purple-300">Sessions: </span>
-              <span className="text-white">{selected.sessionCount}</span>
-            </div>
-            <div>
-              <span className="text-purple-300">Last Active: </span>
-              <span className="text-white">{selected.lastActive || 'Unknown'}</span>
+          {/* Quick Actions */}
+          <div style={{
+            background: 'rgba(0,212,255,0.02)', border: '1px solid rgba(0,212,255,0.08)',
+            borderRadius: 8, padding: '20px',
+          }}>
+            <h2 style={{ color: '#00d4ff', fontSize: 14, fontFamily: 'monospace', letterSpacing: 2, marginBottom: 16 }}>
+              QUICK ACTIONS
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { label: 'Start a new project', href: '/openclaw-dashboard', desc: 'Go to main dashboard' },
+                { label: 'View Leaderboard', href: '/openclaw-dashboard/leaderboard', desc: 'See company rankings' },
+                { label: 'View Kanban Board', href: '/openclaw-dashboard/kanban', desc: 'All projects overview' },
+              ].map(a => (
+                <Link key={a.href} href={a.href} style={{
+                  display: 'block', padding: '10px 14px', borderRadius: 6,
+                  border: '1px solid rgba(0,212,255,0.08)', background: 'rgba(0,212,255,0.02)',
+                  textDecoration: 'none',
+                }}>
+                  <div style={{ color: '#00d4ff', fontSize: 13, fontWeight: 600 }}>{a.label}</div>
+                  <div style={{ color: 'rgba(0,212,255,0.3)', fontSize: 10, fontFamily: 'monospace', marginTop: 2 }}>{a.desc}</div>
+                </Link>
+              ))}
             </div>
           </div>
-        </GlowCard>
+        </div>
+
+        {/* Admin: Company-wide stats */}
+        {isAdmin && companyStats && (
+          <div style={{
+            background: 'rgba(255,51,102,0.03)', border: '1px solid rgba(255,51,102,0.15)',
+            borderRadius: 8, padding: '20px', marginBottom: 20,
+          }}>
+            <h2 style={{ color: '#ff3366', fontSize: 14, fontFamily: 'monospace', letterSpacing: 2, marginBottom: 16 }}>
+              🛡 COMPANY-WIDE STATS
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: 'Employees', value: companyStats.totalEmployees, color: '#ff3366' },
+                { label: 'Active This Week', value: companyStats.activeThisWeek, color: '#00ff88' },
+                { label: 'Total Cost', value: formatCurrency(companyStats.totalCost), color: '#ffaa00' },
+                { label: 'Total Tokens', value: formatTokens(companyStats.totalTokens), color: '#00d4ff' },
+              ].map(s => (
+                <div key={s.label} style={{ background: 'rgba(255,51,102,0.04)', borderRadius: 6, padding: 12 }}>
+                  <div style={{ color: s.color, fontSize: 18, fontFamily: 'monospace', fontWeight: 700 }}>{s.value}</div>
+                  <div style={{ color: 'rgba(255,51,102,0.4)', fontSize: 10, fontFamily: 'monospace' }}>{s.label.toUpperCase()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-
-      <style jsx global>{`
-        .rocket-animation {
-          animation: rocketLaunch 3s ease-out forwards;
-        }
-        
-        @keyframes rocketLaunch {
-          0% {
-            transform: translateY(100vh) rotate(0deg);
-            opacity: 1;
-          }
-          50% {
-            transform: translateY(0) rotate(-5deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(-100vh) rotate(5deg);
-            opacity: 0;
-          }
-        }
-        
-        .launched-banner {
-          animation: glowPulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes glowPulse {
-          0%, 100% {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
-          }
-          50% {
-            box-shadow: 0 0 40px rgba(168, 85, 247, 0.8), 0 0 60px rgba(236, 72, 153, 0.5);
-          }
-        }
-      `}</style>
     </main>
   );
 }
