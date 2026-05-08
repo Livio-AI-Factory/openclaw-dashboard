@@ -37,12 +37,19 @@ def main():
         total_cost = 0.0
         weekly_input = weekly_output = weekly_runtime = 0
         weekly_cost = 0.0
+        admin_input = admin_output = 0
+        admin_cost = 0.0
+        weekly_admin_cost = 0.0
         last_active = ""
         session_count = 0
+        admin_session_count = 0
         
         for k, v in data.items():
             if not isinstance(v, dict):
                 continue
+            
+            # Detect admin/sub-agent sessions
+            is_admin = 'subagent:' in k or 'admin' in k.lower()
             
             inp = v.get("inputTokens", 0) or 0
             out = v.get("outputTokens", 0) or 0
@@ -54,6 +61,16 @@ def main():
             total_runtime += rt
             total_cost += cost
             session_count += 1
+            
+            if is_admin:
+                admin_input += inp
+                admin_output += out
+                admin_cost += cost
+                admin_session_count += 1
+                
+                updated = v.get("updatedAt", 0)
+                if updated and updated >= week_start_ms:
+                    weekly_admin_cost += cost
             
             # Weekly check using updatedAt (epoch ms)
             updated = v.get("updatedAt", 0)
@@ -82,6 +99,11 @@ def main():
             "weeklyHours": weekly_hours,
             "totalCost": round(total_cost, 4),
             "weeklyCost": round(weekly_cost, 4),
+            "adminCost": round(admin_cost, 4),
+            "weeklyAdminCost": round(weekly_admin_cost, 4),
+            "employeeCost": round(total_cost - admin_cost, 4),
+            "weeklyEmployeeCost": round(weekly_cost - weekly_admin_cost, 4),
+            "adminSessionCount": admin_session_count,
             "totalRuntimeMs": total_runtime,
             "weeklyRuntimeMs": weekly_runtime,
             "streak": 0,
@@ -93,6 +115,11 @@ def main():
     employees.sort(key=lambda x: x["weeklyHours"], reverse=True)
     for i, e in enumerate(employees):
         e["rank"] = i + 1
+    
+    total_admin_cost = sum(e["adminCost"] for e in employees)
+    weekly_admin_cost_total = sum(e["weeklyAdminCost"] for e in employees)
+    total_employee_cost = sum(e["employeeCost"] for e in employees)
+    weekly_employee_cost_total = sum(e["weeklyEmployeeCost"] for e in employees)
     
     output = {
         "employees": employees,
@@ -107,6 +134,11 @@ def main():
             "totalWeeklyTokens": sum(e["weeklyTokens"] for e in employees),
             "totalCost": round(sum(e["totalCost"] for e in employees), 2),
             "weeklyCost": round(sum(e["weeklyCost"] for e in employees), 4),
+            "adminCost": round(total_admin_cost, 2),
+            "weeklyAdminCost": round(weekly_admin_cost_total, 4),
+            "employeeCost": round(total_employee_cost, 2),
+            "weeklyEmployeeCost": round(weekly_employee_cost_total, 4),
+            "adminNote": "Admin costs include sub-agent operations, dashboard builds, PDF generation — not recurring employee usage"
         }
     }
     
