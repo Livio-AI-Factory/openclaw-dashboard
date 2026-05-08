@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
-  { href: '/openclaw-dashboard', label: 'HOME', icon: '◈' },
-  { href: '/openclaw-dashboard/hr', label: 'HR', icon: '⬡' },
-  { href: '/openclaw-dashboard/leaderboard', label: 'RANKINGS', icon: '◉' },
-  { href: '/openclaw-dashboard/watchdog', label: 'WATCHDOG', icon: '◆' },
-  { href: '/openclaw-dashboard/me', label: 'MY DASH', icon: '⟐' },
-  { href: '/openclaw-dashboard/kanban', label: 'KANBAN', icon: '✓' },
+  { href: '/', label: 'HOME', icon: '◈' },
+  { href: '/hr', label: 'HR', icon: '⬡' },
+  { href: '/leaderboard', label: 'RANKINGS', icon: '◉' },
+  { href: '/watchdog', label: 'WATCHDOG', icon: '◆' },
+  { href: '/me', label: 'MY DASH', icon: '⟐' },
+  { href: '/kanban', label: 'KANBAN', icon: '✓' },
 ];
 
 export default function NavBar() {
@@ -34,7 +34,7 @@ export default function NavBar() {
         zIndex: 100,
       }}>
         {/* Left: Logo + Title */}
-        <Link href="/openclaw-dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0, textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0, textDecoration: 'none' }}>
           <img
             src="/openclaw-dashboard/logo.png"
             alt="Livio"
@@ -71,7 +71,7 @@ export default function NavBar() {
           className="nav-links-desktop"
         >
           {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/openclaw-dashboard' && pathname.startsWith(link.href));
+            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
@@ -194,7 +194,7 @@ export default function NavBar() {
           gap: '10px',
         }}>
           {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/openclaw-dashboard' && pathname.startsWith(link.href));
+            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}

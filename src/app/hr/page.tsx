@@ -61,7 +61,7 @@ function AccessDenied() {
           Contact your system administrator
         </p>
         <Link
-          href="/openclaw-dashboard/"
+          href="/"
           className="inline-block px-6 py-3 rounded-lg text-sm font-semibold transition-all"
           style={{
             background: 'rgba(0,212,255,0.1)',
@@ -168,7 +168,7 @@ export default function HrPage() {
           {password && password !== 'livio2026' && (
             <p className="text-red-400 text-sm mt-2 text-center">Incorrect password</p>
           )}
-          <Link href="/openclaw-dashboard/" className="block mt-4 text-cyan-300/60 hover:text-cyan-300 text-center text-sm">◂ Back to Home</Link>
+          <Link href="/" className="block mt-4 text-cyan-300/60 hover:text-cyan-300 text-center text-sm">◂ Back to Home</Link>
         </div>
       </main>
     );
@@ -248,7 +248,7 @@ export default function HrPage() {
               </button>
             </div>
             <ExportPDFButton employees={employees} viewMode={viewMode} />
-            <Link href="/openclaw-dashboard/" className="text-cyan-300/50 hover:text-cyan-300 text-sm">◂ Home</Link>
+            <Link href="/" className="text-cyan-300/50 hover:text-cyan-300 text-sm">◂ Home</Link>
           </div>
         </div>
 

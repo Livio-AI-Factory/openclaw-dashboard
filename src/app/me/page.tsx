@@ -143,7 +143,7 @@ export default function MePage() {
           </h1>
           <div className="flex items-center gap-3">
             {isAdmin && (
-              <Link href="/openclaw-dashboard/hr" style={{
+              <Link href="/hr" style={{
                 padding: '6px 16px', borderRadius: 6, fontSize: 13, fontFamily: 'monospace', fontWeight: 700, letterSpacing: 1,
                 border: '1px solid rgba(255,51,102,0.5)', color: '#ff3366', background: 'rgba(255,51,102,0.08)',
                 textDecoration: 'none', textShadow: '0 0 8px rgba(255,51,102,0.3)',
@@ -151,7 +151,7 @@ export default function MePage() {
               ◆ ADMIN PANEL
             </Link>
             )}
-            <Link href="/openclaw-dashboard" style={{ color: 'rgba(0,212,255,0.6)', fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', padding: '6px 12px' }}>
+            <Link href="/" style={{ color: 'rgba(0,212,255,0.6)', fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', padding: '6px 12px' }}>
               ◈ HOME
             </Link>
           </div>
@@ -432,9 +432,9 @@ export default function MePage() {
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
-                { label: 'Start a new project', href: '/openclaw-dashboard', desc: 'Go to main dashboard' },
-                { label: 'View Leaderboard', href: '/openclaw-dashboard/leaderboard', desc: 'See company rankings' },
-                { label: 'View Kanban Board', href: '/openclaw-dashboard/kanban', desc: 'All projects overview' },
+                { label: 'Start a new project', href: '/', desc: 'Go to main dashboard' },
+                { label: 'View Leaderboard', href: '/leaderboard', desc: 'See company rankings' },
+                { label: 'View Kanban Board', href: '/kanban', desc: 'All projects overview' },
               ].map(a => (
                 <Link key={a.href} href={a.href} style={{
                   display: 'block', padding: '10px 14px', borderRadius: 6,
