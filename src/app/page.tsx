@@ -16,9 +16,7 @@ const NAV_CARDS = [
   { icon: '◈', title: 'Home', desc: 'System overview & stats', href: '/', xp: 0 },
   { icon: '⬡', title: 'HR', desc: 'Team analytics & insights', href: '/hr', xp: 50 },
   { icon: '◉', title: 'Leaderboard', desc: 'Top performers & rankings', href: '/leaderboard', xp: 25 },
-  { icon: '◆', title: 'Watchdog', desc: 'Live system monitoring', href: '/watchdog', xp: 30 },
   { icon: '⟐', title: 'My Dashboard', desc: 'Your personal AI stats & progress', href: '/me', xp: 100 },
-  { icon: '✓', title: 'Kanban', desc: 'Project mission control', href: '/kanban', xp: 75 },
 ];
 
 export default function LandingPage() {

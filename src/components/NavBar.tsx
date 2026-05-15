@@ -9,9 +9,7 @@ const NAV_LINKS = [
   { href: '/', label: 'HOME', icon: '◈' },
   { href: '/hr', label: 'HR', icon: '⬡' },
   { href: '/leaderboard', label: 'RANKINGS', icon: '◉' },
-  { href: '/watchdog', label: 'WATCHDOG', icon: '◆' },
   { href: '/me', label: 'MY DASH', icon: '⟐' },
-  { href: '/kanban', label: 'KANBAN', icon: '✓' },
 ];
 
 export default function NavBar() {
